@@ -3,18 +3,7 @@ const dataAPI = require('./sensorsDataAPI.js');
 const servers = require('./servers');
 const usersAPI = require('./usersAPI');
 
-var flag = false;
-
-// http api
-servers.app.post('/addData', (req, res) => {
-    let data = req.body;
-    console.log('data recived from post api:');
-    console.log(data);
-    dataAPI.insertData(data);
-    res.send("post OK");
-})
-
-// bot commands
+// ---------- bot commands ----------
 servers.bot.start(async (context) => {
     console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     
@@ -32,25 +21,29 @@ servers.bot.start(async (context) => {
     context.reply('Commands:\n/get_last_humidity\u{1F4A7}: for the last humidity value recived\n/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n/get_last_data: for last data recived\n/get_realtime_data: to enter in realtime mode and see real time data\n/stop_realtime to exit realtime mode');
 })
 
+// print last value of humidity in the db
 servers.bot.command('get_last_humidity', async (context) => {
     let data = await dataAPI.getLastData();
     context.reply('soil humidity \u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity);
     console.log('humidity sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
+// print last value of brightness in the db
 servers.bot.command('get_last_brightness', async (context) => {
     let data = await dataAPI.getLastData();
     context.reply('enviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness);
     console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
+// print last value of humidity and brightness in the db
 servers.bot.command('get_last_data', async (context) => {
     let data = await dataAPI.getLastData();
     context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness );
     console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
-// salvare nel campo 'realtime' dell'user true se avvia 'get_real_time' e salvare nel campo 'interval' l'interval di quell'user
+// it starts realtime mode of a single user
+// ++ to do ++ manage the case in witch a user stop the bot with realtime mode on
 servers.bot.command('get_realtime_data', async (context) => {
 
     let user = await usersAPI.searchUser(context.message.from.id);
@@ -61,7 +54,16 @@ servers.bot.command('get_realtime_data', async (context) => {
 
         user_interval = setInterval( async () => {
             let data = await dataAPI.getLastData();
-            context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness );
+            context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness )
+            .catch(error => {
+                // if the user stops the bot during realtime mode, delete user from db and clear interval
+				if (error.response && error.response.error_code === 403) {
+					usersAPI.removeUser(context.message.from.id);
+                    clearInterval(user_interval);
+				} else {
+					console.log(error);
+				}
+			});;
         }, 1000*usersAPI.TIME_INTERVAL);
 
         await usersAPI.updateUser(context.message.from.id, {realtime: true , interval: Number(user_interval) });
@@ -71,7 +73,7 @@ servers.bot.command('get_realtime_data', async (context) => {
 
 })
 
-// controllare ogni user e se uno ha 'realtime' a true allora portlo a falses e leggere il campo interval per poi disattivarlo
+// it stops realtime mode of a single user
 servers.bot.command('stop_realtime', async (context) => {
     let user = await usersAPI.searchUser(context.message.from.id);
 
@@ -87,22 +89,63 @@ servers.bot.command('stop_realtime', async (context) => {
     } 
 })
 
-/* servers.bot.command('/start_pump', async (context) => {
+// set global variable to control whether or not the pump is running
+// this varible will be usefull for httpGET from the ESP01 module
+var pump_started = false;
+// set 'pump_started' to true to flag that a user what to start the pump
+servers.bot.command('/start_pump', async (context) => {
 
-    if (flag === true) {
-        context.reply('already started');
+    if (pump_started) {
+        context.reply('pump already started');
     } else {
-        flag = true;
-        context.reply('pump started')
+        pump_started = true;
+        context.reply('pump started');
+        console.log('pump started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     }
-    console.log('flag set by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
-}) */
+})
 
+// set 'pump_started' to false to flag that a user what to stop the pump
+servers.bot.command('/stop_pump', async (context) => {
+
+    if (pump_started) {
+        pump_started = false;
+        context.reply('pump stopped');
+        console.log('pump stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    } else {
+        context.reply('pump is not running');
+    }
+})
+
+// shows all commands available
+// ++ to do ++ to conclude
 servers.bot.command('commands', async (context) => {
     context.reply('Commands:\n/get_last_humidity\u{1F4A7}: for the last humidity value recived\n/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n/get_last_data: for last data recived\n/get_realtime_data: to enter in realtime mode and see real time data\n/stop_realtime to exit realtime mode');
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
 
+// ---------- http api ----------
+// listens for new sensor data and inserts them in the db
+servers.app.post('/addSensorsData', (req, res) => {
+    let data = req.body;
+    console.log('data recived from post api:');
+    console.log(data);
+    dataAPI.insertData(data);
+    res.send("post OK");
+})
 
+// listens for get request and send whether or not the pump_started flag is true 
+servers.app.get('/getPumpState', (req, res) => {
+    console.log('get request recived:');
+    if (pump_started) {
+        // to see what to send...
+        res.send();
+    } else {
+        // to see what to send...
+        res.send();
+    }
+    console.log('get request send:');
+})
+
+// starts server
 connectDBandStart.connectDBandStartServer("mongodb+srv://lorenzo:lorenzo@telegrambot.dz7srkj.mongodb.net/Automatic_irrigation_IoT");

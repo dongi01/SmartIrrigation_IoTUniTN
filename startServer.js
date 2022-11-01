@@ -1,15 +1,12 @@
 // modules
 const mongoose = require('mongoose');
 const servers = require('./servers');
-const dbAPI = require('./sensorsDataAPI.js'); // temporaneo
-
 
 
 // function that starts the express app and telegram bot
 startServer = async () => {
-    if (servers.bot.launch()){
-		console.log("telegram bot started");
-	}
+    await servers.bot.launch()
+	console.log("telegram bot started");
 
     servers.app.listen(3000, () => {
         console.log("listening on port 3000");

@@ -1,4 +1,4 @@
-let database = 'Sensors_data'
+const DATABASE = 'Sensors_data'
 
 const mongoose = require('mongoose');
 
@@ -7,26 +7,23 @@ const DataSchema = new mongoose.Schema({
 	soil_humidity: Number,
 	brightness: Number,
 	date: {type: Date, default: new Date()}
-},{ collection: database });
+},{ collection: DATABASE });
 
 // association between schema and collection
-const DataModel = mongoose.model(database, DataSchema);
+const DataModel = mongoose.model(DATABASE, DataSchema);
 
 // ------------------------- da qua in giù rivedere tutto -------------------------
-// da sistemare tutte le funcioni del db per renderle sincrone e aspettare che le operazioni vengano concluse
-// https://stackoverflow.com/questions/37104199/how-to-await-for-a-callback-to-return
 
 // function that adds data to the database
-const insertData = async (obj) => {
-	const data = new DataModel(obj);
-	data.save(() => {
-        console.log("Data added to DB: " + data);
+const insertData = async (dataObj) => {
+	await UserModel.create(dataObj, () => {
+        console.log("Data added: " + dataObj);
     });
 }
 
 // function that delete all documents from the collection
 const removeAllData = async () => {
-    DataModel.deleteMany({}, () => {
+    await DataModel.deleteMany({}, () => {
         console.log("all data removed");
     });
 } 
@@ -37,10 +34,13 @@ const getLastData = async () => {
     return singleListObj[0];
 }
 
-const parseData = (objData) => {
+// return parse data
+const parseData = (dataObj) => {
     return {
-        soil_humidity: objData.soil_humidity,
-        brightness: objData.brightness
+        soil_humidity: dataObj.soil_humidity,
+        brightness: dataObj.brightness
     };
 }
+
+
 module.exports = {insertData, removeAllData, getLastData, parseData}

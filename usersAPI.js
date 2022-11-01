@@ -3,7 +3,7 @@ const TIME_INTERVAL = 10;
 
 const mongoose = require('mongoose');
 
-// data schema for collection 'Utenti' documents
+// data schema for collection 'Users' documents
 const UserSchema = new mongoose.Schema({
 	first_name: String,
 	last_name: String,
@@ -18,30 +18,16 @@ const UserSchema = new mongoose.Schema({
 const UserModel = mongoose.model(DATABASE, UserSchema);
 
 // function that adds a user to the database
-const insertUser = (obj) => {
-	const user = new UserModel(obj);
-	user.save(() => {
-        console.log("User added: " + user);
+const insertUser = async (userObj) => {
+    await UserModel.create(userObj, () => {
+        console.log("User added: ");
+        console.log(userObj);
     });
 }
 
 // function that search a user by chat id in the collection and returns it
 const searchUser = async (chatID) => {
     return await UserModel.findOne({ chat_id: chatID }).exec();
-}
-
-// function that return a list of chatID of the users in the collection
-// *to try what happend if there is only one user*
-const allUser = (callback) => {
-    UserModel.find({}, (err, userList) => {
-        if(err){
-            return callback(err);
-        } else if (userList){
-            return callback(null,userList);
-        } else {
-            return callback();
-        }
-    });
 }
 
 // function that delete a user from the collection
@@ -51,6 +37,7 @@ const removeUser = (chatID) => {
     });
 } 
 
+// function that update a user with 'updatedValues'
 const updateUser = async (chatID, updatedValues) => {
     await UserModel.updateOne({ chat_id: chatID }, updatedValues);
     console.log('user with chat_id: ' + chatID + ' updated with ');
@@ -58,5 +45,4 @@ const updateUser = async (chatID, updatedValues) => {
 }
 
 
-
-module.exports = {TIME_INTERVAL, insertUser, searchUser, allUser, removeUser, updateUser}
+module.exports = {TIME_INTERVAL, insertUser, searchUser, removeUser, updateUser}
