@@ -43,7 +43,6 @@ servers.bot.command('get_last_data', async (context) => {
 })
 
 // it starts realtime mode of a single user
-// ++ to do ++ manage the case in witch a user stop the bot with realtime mode on
 servers.bot.command('get_realtime_data', async (context) => {
 
     let user = await usersAPI.searchUser(context.message.from.id);
@@ -139,10 +138,10 @@ servers.app.get('/getPumpState', (req, res) => {
     console.log('get request recived:');
     if (pump_started) {
         // to see what to send...
-        res.send();
+        res.send({test: true});
     } else {
         // to see what to send...
-        res.send();
+        res.send({test: false});
     }
     console.log('get request send:');
 })
