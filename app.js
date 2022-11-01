@@ -122,6 +122,13 @@ servers.bot.command('commands', async (context) => {
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
+// delete all sensors data from db
+// mabye this function can be omitted in the command list
+servers.bot.command('delete_sensors_data', async (context) => {
+    dataAPI.removeAllData();
+    context.reply('All sensors data deleted');
+    console.log('sensors data deleted by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+})
 
 // ---------- http api ----------
 // listens for new sensor data and inserts them in the db
@@ -135,7 +142,7 @@ servers.app.post('/addSensorsData', (req, res) => {
 
 // listens for get request and send whether or not the pump_started flag is true 
 servers.app.get('/getPumpState', (req, res) => {
-    console.log('get request recived:');
+    console.log('get request recived');
     if (pump_started) {
         // to see what to send...
         res.send({test: true});
@@ -143,7 +150,7 @@ servers.app.get('/getPumpState', (req, res) => {
         // to see what to send...
         res.send({test: false});
     }
-    console.log('get request send:');
+    console.log('get request send');
 })
 
 // starts server

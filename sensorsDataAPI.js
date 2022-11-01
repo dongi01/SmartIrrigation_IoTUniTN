@@ -16,14 +16,20 @@ const DataModel = mongoose.model(DATABASE, DataSchema);
 
 // function that adds data to the database
 const insertData = async (dataObj) => {
-	await UserModel.create(dataObj, () => {
-        console.log("Data added: " + dataObj);
+	await DataModel.create(dataObj, () => {
+        console.log("Data added:");
+        console.log(dataObj);
     });
 }
 
 // function that delete all documents from the collection
-const removeAllData = async () => {
-    await DataModel.deleteMany({}, () => {
+const removeAllData = () => {
+    DataModel.deleteMany({}, () => {
+        // after removed all data, insert a new document with parameter to 0 so when client asks for data, server won't crush
+        insertData({
+            soil_humidity: 0.0,
+            brightness: 0.0,
+        });
         console.log("all data removed");
     });
 } 
