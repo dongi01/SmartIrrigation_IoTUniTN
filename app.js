@@ -17,9 +17,15 @@ servers.bot.start(async (context) => {
             chat_id: context.message.from.id
         });
     }
-
-    context.reply('Commands:\n/get_last_humidity\u{1F4A7}: for the last humidity value recived\n/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n/get_last_data: for last data recived\n/get_realtime_data: to enter in realtime mode and see real time data\n/stop_realtime to exit realtime mode');
-})
+    // ++ to do ++ create a function in a new telegram support function file that print commands 
+    context.reply('Commands:\n' + 
+    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
+    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
+    '/get_last_data: for last data recived\n' + 
+    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
+    '/stop_realtime to exit realtime mode' + 
+    '/start_pump to manually star the pump' +
+    '/stop_pump to manually stop the pump');})
 
 // print last value of humidity in the db
 servers.bot.command('get_last_humidity', async (context) => {
@@ -116,9 +122,16 @@ servers.bot.command('/stop_pump', async (context) => {
 })
 
 // shows all commands available
-// ++ to do ++ to conclude
+// ++ to do ++ create a function in a new telegram support function file that print commands 
 servers.bot.command('commands', async (context) => {
-    context.reply('Commands:\n/get_last_humidity\u{1F4A7}: for the last humidity value recived\n/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n/get_last_data: for last data recived\n/get_realtime_data: to enter in realtime mode and see real time data\n/stop_realtime to exit realtime mode');
+    context.reply('Commands:\n' + 
+    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
+    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
+    '/get_last_data: for last data recived\n' + 
+    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
+    '/stop_realtime to exit realtime mode' + 
+    '/start_pump to manually star the pump' +
+    '/stop_pump to manually stop the pump');
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
