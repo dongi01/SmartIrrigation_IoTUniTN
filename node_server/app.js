@@ -23,10 +23,13 @@ servers.bot.start(async (context) => {
     '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
     '/get_last_data: for last data recived\n' + 
     '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
-    '/stop_realtime to exit realtime mode' + 
-    '/start_pump to manually star the pump' +
-    '/stop_pump to manually stop the pump');})
+    '/stop_realtime to exit realtime mode\n' + 
+    '/start_pump to manually star the pump\n' +
+    '/stop_pump to manually stop the pump');
+})
 
+
+// ++ to do ++ before sending data check if real time mode is activated or not
 // print last value of humidity in the db
 servers.bot.command('get_last_humidity', async (context) => {
     let data = await dataAPI.getLastData();
@@ -129,8 +132,8 @@ servers.bot.command('commands', async (context) => {
     '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
     '/get_last_data: for last data recived\n' + 
     '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
-    '/stop_realtime to exit realtime mode' + 
-    '/start_pump to manually star the pump' +
+    '/stop_realtime to exit realtime mode\n' + 
+    '/start_pump to manually star the pump\n' +
     '/stop_pump to manually stop the pump');
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
@@ -144,12 +147,28 @@ servers.bot.command('delete_sensors_data', async (context) => {
 })
 
 // ---------- http api ----------
+
+// post request counter
+var postCounter = 0;
+var postDBCounter = 0;
 // listens for new sensor data and inserts them in the db
 servers.app.post('/addSensorsData', (req, res) => {
+    postCounter++;
+    postDBCounter++;
     let data = req.body;
     console.log('data recived from post api:');
     console.log(data);
-    dataAPI.insertData(data);
+    // insert data in db every 10 post recived
+    if (postDBCounter === 10) {
+        dataAPI.insertData(data);
+        postDBCounter = 0;
+    }
+    if (postCounter === 200) {
+        // delete first 100
+        // ++ to do ++ create the function in sensorsDataAPI
+        postCounter = 100;
+    }
+    
     res.send("post OK");
 })
 

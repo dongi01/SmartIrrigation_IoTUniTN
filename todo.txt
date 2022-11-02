@@ -4,9 +4,10 @@ Sensore luminosità
 Sensore temperatura
 Far andare pompa acqua
 Aggiungere comandi al botfather
-Gestire eliminazione dati sensori
-Tenere solo ultimi tot dati
+done: Gestire eliminazione dati sensori -> inserire contatore globale che dopo tot http:post andate a buon fine elimina i primi x documents
 Automatizzare start_pump
 Definire quantità acqua da dare con la pompa
-Inviare all'utente ultimi tot dati
+Inviare all'utente ultimi tot dati attraverso parametri del comando -> se utente chiede + di quelli presenti si mandano tutti con un messaggio che lo avverte,
+    se no solo quelli che ha chiesto
+before sending single sensors data check if real time mode is activated or not. iF not send, else don't send
 Add README
