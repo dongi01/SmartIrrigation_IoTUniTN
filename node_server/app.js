@@ -2,23 +2,13 @@ const connectDBandStart = require("./startServer");
 const dataAPI = require('./sensorsDataAPI.js');
 const servers = require('./servers');
 const usersAPI = require('./usersAPI');
+const supportFunction = require('./supportFunction');
 
 //.env file
 require('dotenv').config();
 
-// lists of all commands
-function commandList(){
-    return 'Commands:\n' + 
-    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
-    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
-    '/get_last_data: for last data recived\n' + 
-    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
-    '/stop_realtime to exit realtime mode\n' + 
-    '/start_pump to manually star the pump\n' +
-    '/stop_pump to manually stop the pump'
-}
+// -------------------- bot commands --------------------
 
-// ---------- bot commands ----------
 servers.bot.start(async (context) => {
     console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     
@@ -32,8 +22,7 @@ servers.bot.start(async (context) => {
             chat_id: context.message.from.id
         });
     }
-    // ++ to do ++ create a function in a new telegram support function file that print commands
-    context.reply(commandList());
+    context.reply(supportFunction.commandList());
 })
 
 // print last value of humidity in the db
@@ -124,6 +113,41 @@ servers.bot.command('stop_realtime', async (context) => {
     } 
 })
 
+// print last value of humidity and brightness in the db
+servers.bot.command('get_last_N_data', async (context) => {
+
+    msg = context.message.text;
+    if(msg != "/get_last_N_data") {
+        msgArray = msg.split(' ');
+        if (msgArray.length === 2) {
+            N = Number(msgArray[1]);
+            dataArray = await dataAPI.getLastNData(N);
+            dataArrayDim = dataArray.length;
+            if (N === NaN) {
+                context.reply('You have to insert a number after the command');
+            } else {
+                console.log(N + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+
+                if (!supportFunction.checkLength(dataArrayDim, N)) {
+                    context.reply('There are only ' + dataArrayDim + ' documents');
+                }
+
+                dataArray.forEach(dataObj => {
+                    if (dataAPI.parseData(dataObj).soil_humidity != undefined) {
+                        context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(dataObj).soil_humidity + 
+                        '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(dataObj).brightness );
+                    }
+                });
+            }
+        } else {
+            context.reply('Use only one number paramether after the command');
+        }
+    } else {
+        context.reply('Use \'command NumArgument\'');
+    }
+
+})
+
 // set global variable to control whether or not the pump is running
 // this varible will be usefull for httpGET from the ESP01 module
 var pump_started = false;
@@ -152,9 +176,8 @@ servers.bot.command('/stop_pump', async (context) => {
 })
 
 // shows all commands available
-// ++ to do ++ create a function in a new telegram support function file that print commands 
 servers.bot.command('commands', async (context) => {
-    context.reply(commandList());
+    context.reply(supportFunction.commandList());
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
@@ -166,7 +189,7 @@ servers.bot.command('delete_sensors_data', async (context) => {
     console.log('sensors data deleted by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
-// ---------- http api ----------
+// -------------------- http api --------------------
 
 // post request counter
 var postCounter = 0;
@@ -179,7 +202,7 @@ servers.app.post('/addSensorsData', (req, res) => {
     console.log('data recived from post api:');
     console.log(data);
     // insert data in db every 10 post recived
-    if (postDBCounter === 10) {
+    if (postDBCounter === 1) {
         dataAPI.insertData(data);
         postDBCounter = 0;
     }

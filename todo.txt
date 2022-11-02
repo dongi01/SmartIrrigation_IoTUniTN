@@ -6,11 +6,9 @@ Low-level:
 -Sensore luminosità
 -Sensore temperatura
 -Far andare pompa acqua
--Definire quantità acqua da dare con la pompa
+-Definire quantità acqua da dare con la pompa (da provare con un vaso)
+-Automatizzare start_pump
 
 High-level:
 -Aggiungere comandi al botfather
--done: Gestire eliminazione dati sensori -> inserire contatore globale che dopo tot http:post andate a buon fine elimina i primi x documents
--Automatizzare start_pump
--Inviare all'utente ultimi tot dati attraverso parametri del comando -> se utente chiede + di quelli presenti si mandano tutti con un messaggio che lo avverte, se no solo quelli che ha chiesto
--before sending single sensors data check if real time mode is activated or not. iF not send, else don't send
+-funzione che elimina i N documents più vecchi da mettere nella gestione della httppost
