@@ -1,0 +1,11 @@
+Comunicazione seriale
+Sensore umidità
+Sensore luminosità
+Sensore temperatura
+Far andare pompa acqua
+Aggiungere comandi al botfather
+Gestire eliminazione dati sensori
+Tenere solo ultimi tot dati
+Automatizzare start_pump
+Definire quantità acqua da dare con la pompa
+Add README
