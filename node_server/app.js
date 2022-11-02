@@ -3,6 +3,9 @@ const dataAPI = require('./sensorsDataAPI.js');
 const servers = require('./servers');
 const usersAPI = require('./usersAPI');
 
+//.env file
+require('dotenv').config();
+
 // ---------- bot commands ----------
 servers.bot.start(async (context) => {
     console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
@@ -186,4 +189,4 @@ servers.app.get('/getPumpState', (req, res) => {
 })
 
 // starts server
-connectDBandStart.connectDBandStartServer("mongodb+srv://lorenzo:lorenzo@telegrambot.dz7srkj.mongodb.net/Automatic_irrigation_IoT");
+connectDBandStart.connectDBandStartServer(process.env.DB_URL);
