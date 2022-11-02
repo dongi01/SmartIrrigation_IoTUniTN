@@ -31,7 +31,6 @@ servers.bot.start(async (context) => {
     '/stop_pump to manually stop the pump');
 })
 
-// ++ to do ++ before sending data check if real time mode is activated or not
 // print last value of humidity in the db
 servers.bot.command('get_last_humidity', async (context) => {
 
