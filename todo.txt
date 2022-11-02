@@ -8,3 +8,4 @@ Gestire eliminazione dati sensori
 Tenere solo ultimi tot dati
 Automatizzare start_pump
 Definire quantità acqua da dare con la pompa
+Add README
