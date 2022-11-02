@@ -31,27 +31,47 @@ servers.bot.start(async (context) => {
     '/stop_pump to manually stop the pump');
 })
 
-
 // ++ to do ++ before sending data check if real time mode is activated or not
 // print last value of humidity in the db
 servers.bot.command('get_last_humidity', async (context) => {
-    let data = await dataAPI.getLastData();
-    context.reply('soil humidity \u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity);
-    console.log('humidity sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+
+    let user = await usersAPI.searchUser(context.message.from.id);
+
+    if(user.realtime === false) {
+        let data = await dataAPI.getLastData();
+        context.reply('soil humidity \u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity);
+        console.log('humidity sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    }else{
+        context.reply('You are in realtime mode, please exit from it to use this command');
+    }
 })
 
 // print last value of brightness in the db
 servers.bot.command('get_last_brightness', async (context) => {
-    let data = await dataAPI.getLastData();
-    context.reply('enviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness);
-    console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+
+    let user = await usersAPI.searchUser(context.message.from.id);
+
+    if(user.realtime === false){
+        let data = await dataAPI.getLastData();
+        context.reply('enviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness);
+        console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    }else{
+        context.reply('You are in realtime mode, please exit from it to use this command');
+    }
 })
 
 // print last value of humidity and brightness in the db
 servers.bot.command('get_last_data', async (context) => {
-    let data = await dataAPI.getLastData();
-    context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness );
-    console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+
+    let user = await usersAPI.searchUser(context.message.from.id);
+
+    if(user.realtime === false){
+        let data = await dataAPI.getLastData();
+        context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness );
+        console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    }else{
+        context.reply('You are in realtime mode, please exit from it to use this command');
+    }
 })
 
 // it starts realtime mode of a single user
