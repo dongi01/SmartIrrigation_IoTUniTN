@@ -6,6 +6,18 @@ const usersAPI = require('./usersAPI');
 //.env file
 require('dotenv').config();
 
+// lists of all commands
+function commandList(){
+    return 'Commands:\n' + 
+    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
+    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
+    '/get_last_data: for last data recived\n' + 
+    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
+    '/stop_realtime to exit realtime mode\n' + 
+    '/start_pump to manually star the pump\n' +
+    '/stop_pump to manually stop the pump'
+}
+
 // ---------- bot commands ----------
 servers.bot.start(async (context) => {
     console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
@@ -20,15 +32,8 @@ servers.bot.start(async (context) => {
             chat_id: context.message.from.id
         });
     }
-    // ++ to do ++ create a function in a new telegram support function file that print commands 
-    context.reply('Commands:\n' + 
-    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
-    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
-    '/get_last_data: for last data recived\n' + 
-    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
-    '/stop_realtime to exit realtime mode\n' + 
-    '/start_pump to manually star the pump\n' +
-    '/stop_pump to manually stop the pump');
+    // ++ to do ++ create a function in a new telegram support function file that print commands
+    context.reply(commandList());
 })
 
 // print last value of humidity in the db
@@ -149,14 +154,7 @@ servers.bot.command('/stop_pump', async (context) => {
 // shows all commands available
 // ++ to do ++ create a function in a new telegram support function file that print commands 
 servers.bot.command('commands', async (context) => {
-    context.reply('Commands:\n' + 
-    '/get_last_humidity\u{1F4A7}: for the last humidity value recived\n' + 
-    '/get_last_brightness\u{2600}: for the last enviromental brightness value recived\n' + 
-    '/get_last_data: for last data recived\n' + 
-    '/get_realtime_data: to enter in realtime mode and see real time data\n' + 
-    '/stop_realtime to exit realtime mode\n' + 
-    '/start_pump to manually star the pump\n' +
-    '/stop_pump to manually stop the pump');
+    context.reply(commandList());
     console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 })
 
