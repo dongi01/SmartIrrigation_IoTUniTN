@@ -10,5 +10,5 @@ Low-level:
 -Automatizzare start_pump
 
 High-level:
--Aggiungere comandi al botfather
+-Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
 -funzione che elimina i N documents più vecchi da mettere nella gestione della httppost
