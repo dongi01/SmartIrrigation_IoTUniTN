@@ -220,10 +220,10 @@ servers.app.get('/getPumpState', (req, res) => {
     console.log('get request recived');
     if (pump_started) {
         // to see what to send...
-        res.send({test: true});
+        res.send(1);
     } else {
         // to see what to send...
-        res.send({test: false});
+        res.send(0);
     }
     console.log('get request send');
 })

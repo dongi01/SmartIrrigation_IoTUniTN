@@ -37,21 +37,32 @@ void setup() {
   Serial.begin(115200);
 
   WiFi.begin(ssid, password);
-  Serial.println("Connecting");
+  //Serial.println("Connecting");
   while(WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    //Serial.print(".");
   }
-  Serial.println("");
+  /* Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP()); */
  
-  Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
+  //Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
 }
 
 void loop() {
   //Send an HTTP POST request every 10 minutes
   if ((millis() - lastTime) > timerDelay) {
+
+    Serial.write(99); // c
+    Serial.write(100); // d
+    Serial.write(101); // e
+    Serial.write(102); // f
+    Serial.write(103); // g
+    Serial.write(104); // h
+    Serial.write(105); // i
+    Serial.write(106); // j
+    
+    //Serial.write("\n");
     //Check WiFi connection status
     if(WiFi.status()== WL_CONNECTED){
       WiFiClient client;
@@ -82,25 +93,26 @@ void loop() {
       //http.addHeader("Content-Type", "text/plain");
       //int httpResponseCode = http.POST("Hello, World!");
      
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
+      /* Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode); */
 
       // -------------------------- GET METHOD ----------------------------
       // Send an HTTP POST request depending on timerDelay
       
               
       sensorReadings = httpGETRequest(serverName2);
-      Serial.println(sensorReadings);
-      JSONVar myObject = JSON.parse(sensorReadings);
+      //Serial.println(sensorReadings);
+/*       JSONVar myObject = JSON.parse(sensorReadings);
+ */
   
       // JSON.typeof(jsonVar) can be used to get the type of the var
-      if (JSON.typeof(myObject) == "undefined") {
+      /* if (JSON.typeof(myObject) == "undefined") {
         Serial.println("Parsing input failed!");
         return;
-      }
+      } */
     
-      Serial.print("JSON object = ");
-      Serial.println(myObject);
+      /* Serial.print("JSON object = ");
+      Serial.println(myObject); */
     
       // myObject.keys() can be used to get an array of all the keys in the object
       /* JSONVar keys = myObject.keys();
@@ -120,7 +132,7 @@ void loop() {
       Serial.println(sensorReadingsArr[2]); */
     }
     else {
-      Serial.println("WiFi Disconnected");
+      //Serial.println("WiFi Disconnected");
     }
     lastTime = millis();
   }
@@ -142,13 +154,13 @@ String httpGETRequest(const char* serverName) {
   String payload = "{}"; 
   
   if (httpResponseCode>0) {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
+    /* Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode); */
     payload = http.getString();
   }
   else {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
+    /* Serial.print("Error code: ");
+    Serial.println(httpResponseCode); */
   }
   // Free resources
   http.end();
