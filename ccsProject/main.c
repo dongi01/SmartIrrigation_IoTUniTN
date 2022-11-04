@@ -23,6 +23,12 @@ const int lowLimitController = 4200;
 //current menu option selected
 short currentOpt = 0;
 
+//menu options
+int8_t * menuOpt[NUM_OPT] = {"Moisture graphic","Moisture percentage","Start the pump","Stop the pump"};
+
+//boolean variable that indicates if the pump is working
+bool PUMP_ON = false;
+
 //Graphic library context
 Graphics_Context g_sContext;
 
@@ -136,27 +142,44 @@ float map(uint16_t AdcValue){
 
 void generateMenu(){
 
-    int8_t * menuOpt[NUM_OPT] = {"Moisture graphic","Moisture percentage","Start the pump","Stop the pump"};
-
     Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
 
     int32_t verticalPos = 60;
     int i=0;
+    char toWrite[22];
     for(i = 0 ; i < NUM_OPT ; i++){
-        //Graphics_drawStringCentered(&g_sContext, menuOpt[i], AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
+        if(i == currentOpt){
+            sprintf(toWrite,"->%s", menuOpt[i]);
+        }else{
+            sprintf(toWrite,"%s", menuOpt[i]);
+        }
+
+        printf("Tryna printin %s\n", toWrite);
+        Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
         verticalPos+=10;
     }
-
-    /*
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "->Moisture graphic", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Moisture percentage", AUTO_STRING_LENGTH, 64, 70, OPAQUE_TEXT);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Start the pump", AUTO_STRING_LENGTH, 64, 80, OPAQUE_TEXT);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Stop the pump", AUTO_STRING_LENGTH, 64, 90, OPAQUE_TEXT);
-    */
-
 }
 
 void refreshMenu(){
+
+    //Graphics_clearDisplay(&g_sContext);
+    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
+
+    int32_t verticalPos = 60;
+        int i=0;
+        char toWrite[30];
+        for(i = 0 ; i < NUM_OPT ; i++){
+            if(i == currentOpt){
+                sprintf(toWrite,"->%s", menuOpt[i]);
+            }else{
+                sprintf(toWrite,"%s", menuOpt[i]);
+            }
+
+            //printf("Tryna printin %s\n", toWrite);
+            Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
+            verticalPos+=10;
+        }
+
 
 
 }
@@ -195,6 +218,20 @@ void greenOn(){
     GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN4);
 }
 
+void _buttonsInit(){
+
+    //setting pin as input in pull up mode
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5,GPIO_PIN1);
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3,GPIO_PIN5);
+
+    //enabling interrupt
+    GPIO_enableInterrupt(GPIO_PORT_P5,GPIO_PIN1);
+    GPIO_enableInterrupt(GPIO_PORT_P3,GPIO_PIN5);
+
+    Interrupt_enableInterrupt(INT_PORT5);
+    Interrupt_enableInterrupt(INT_PORT3);
+}
+
 void _hwInit(){
 
     //Halting WDT and disabling master interrupts
@@ -217,15 +254,28 @@ void _hwInit(){
 
     _graphicsInit();
     _ledInit();
+    _buttonsInit();
     adcInit();
+}
+
+void startPump(){
+
+    Graphics_clearDisplay(&g_sContext);
+    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Starting pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
+
+}
+
+void stopPump(){
+
+    Graphics_clearDisplay(&g_sContext);
+    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Stopping pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
+
 }
 
 int main(void){
 
-    WDT_A_holdTimer(); //Stop watchdog timer
-
     _hwInit();
-    configureTimerOneSec();
+    //configureTimerOneSec();
 
     generateMenu();
 
@@ -233,6 +283,47 @@ int main(void){
 
     while (1){
         PCM_gotoLPM0(); //Sleep mode
+    }
+}
+
+void PORT3_IRQHandler(){
+
+    uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P3);
+    /* clear interrupt flag (to clear pending interrupt indicator */
+    GPIO_clearInterruptFlag(GPIO_PORT_P3, status);
+    /* check if we received P3.5 interrupt*/
+    if((status & GPIO_PIN5)){
+       printf("second button pressed\n");
+       generateMenu();
+       //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN4);
+    }
+
+}
+
+void PORT5_IRQHandler(){
+
+    printf("first button interrupt \n");
+
+    uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P5);
+    GPIO_clearInterruptFlag(GPIO_PORT_P5, status);
+    /* check if we received P5.1 interrupt*/
+    if((status & GPIO_PIN1)){
+       printf("first button pressed\n");
+       switch(currentOpt){
+           case 0: //moisture graphic
+               break;
+           case 1: //moisture percentage
+               break;
+           case 2: //start pump
+               startPump();
+               break;
+           case 3: //stop pump
+               stopPump();
+               break;
+           default:
+               printf("problems problems problems\n");
+       }
+       //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN6);
     }
 }
 
@@ -261,7 +352,7 @@ void ADC14_IRQHandler(void){
 
         float perc = map(curADCResult);
 
-        printf("%d\n",curADCResult);
+        //printf("%d\n",curADCResult);
 
         //Display temperature
         /*char string[10];
@@ -278,10 +369,22 @@ void ADC14_IRQHandler(void){
 
         int yVal = resultsBuffer[1];
 
+        //joystick up
         if (yVal < lowLimitController){
-            currentOpt++;
+            if(currentOpt < 3)currentOpt++;
             printf("currentOpt->%d\n",currentOpt);
-            //refreshMenu();
+            refreshMenu();
+            int i = 0;
+            for(i = 0 ; i < 1000000 ; i++);
+        }
+
+        //joystick down
+        if(yVal > upLimitController){
+            if(currentOpt > 0)currentOpt--;
+            printf("currentOpt->%d\n",currentOpt);
+            refreshMenu();
+            int i = 0;
+            for(i = 0 ; i < 1000000 ; i++);
         }
 
         char string[10];
