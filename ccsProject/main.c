@@ -27,7 +27,7 @@ short currentOpt = 0;
 int8_t * menuOpt[NUM_OPT] = {"Moisture graphic","Moisture percentage","Start the pump","Stop the pump"};
 
 //boolean variable that indicates if the pump is working
-bool PUMP_ON = false;
+bool pumpOn = false;
 
 //Graphic library context
 Graphics_Context g_sContext;
@@ -186,35 +186,38 @@ void refreshMenu(){
 
 void clearLeds(){
 
+    //turn off booster pack leds
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN4);
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN6);
     GPIO_setOutputLowOnPin(GPIO_PORT_P5, GPIO_PIN6);
 
 }
 
-void _ledInit()
-{
+void portInit(){
+
+    //set as output leds boosterpack
     GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN4);
     GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN6);
     GPIO_setAsOutputPin(GPIO_PORT_P5,GPIO_PIN6);
+
+    //set P4.1 for relay control
+    GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
+    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1);
 
     clearLeds();
 }
 
 
 void redOn(){
-
     GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN6);
 }
 
 void blueOn(){
-
     GPIO_setOutputHighOnPin(GPIO_PORT_P5, GPIO_PIN6);
 
 }
 
 void greenOn(){
-
     GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN4);
 }
 
@@ -253,7 +256,7 @@ void _hwInit(){
     CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
     _graphicsInit();
-    _ledInit();
+    portInit();
     _buttonsInit();
     adcInit();
 }
@@ -263,6 +266,13 @@ void startPump(){
     Graphics_clearDisplay(&g_sContext);
     Graphics_drawStringCentered(&g_sContext, (int8_t *) "Starting pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
 
+    //check if pump is already on -- controllare stampa display --
+    if(pumpOn){
+        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already on", AUTO_STRING_LENGTH, 64, 70, OPAQUE_TEXT);
+    }else{
+        pumpOn = true;
+        GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1); //close relay and turn on pump
+    }
 }
 
 void stopPump(){
@@ -270,16 +280,20 @@ void stopPump(){
     Graphics_clearDisplay(&g_sContext);
     Graphics_drawStringCentered(&g_sContext, (int8_t *) "Stopping pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
 
+    //check if pump is already off -- controllare stampa display --
+    if(!pumpOn){
+        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already off", AUTO_STRING_LENGTH, 64, 70, OPAQUE_TEXT);
+    }else{
+        pumpOn = false;
+        GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1); //open relay and turn off pump
+    }
 }
 
 int main(void){
 
     _hwInit();
     //configureTimerOneSec();
-
     generateMenu();
-
-
 
     while (1){
         PCM_gotoLPM0(); //Sleep mode
@@ -297,7 +311,6 @@ void PORT3_IRQHandler(){
        generateMenu();
        //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN4);
     }
-
 }
 
 void PORT5_IRQHandler(){
@@ -402,7 +415,7 @@ void ADC14_IRQHandler(void){
                                         8,
                                         64,
                                         70,
-                                        OPAQUE_TEXT);
+                                        OPAQUE_TEXT);*/
 
         /* Determine if JoyStick button is pressed */
         int buttonPressed = 0;
