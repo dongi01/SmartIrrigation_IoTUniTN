@@ -1,14 +1,13 @@
 Add README
 
 Low-level:
--Comunicazione seriale
+-Comunicazione seriale impossibile chiuderla
 -Sensore umidità
 -Sensore luminosità
 -Sensore temperatura
 -Definire quantità acqua da dare con la pompa (da provare con un vaso)
 -Automatizzare start_pump
 -Debuggare menu schermo
--Finire funzioni startPump e stopPump
 
 High-level:
 -Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
