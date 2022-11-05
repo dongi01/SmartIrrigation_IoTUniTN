@@ -15,7 +15,7 @@ startServer = async () => {
 
 // connects the DB and starts the server after the connection is done
 const connectDBandStartServer = (URL) => {
-    console.log("db connecting...");
+    console.log('db connecting...');
 	try {
 		mongoose.connect(URL, () => {
 			console.log('db connected!');

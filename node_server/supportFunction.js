@@ -10,9 +10,17 @@ const commandList = () => {
     '/stop_pump to manually stop the pump';
 }
 
+pumpStartedMsg = () => {
+	return 'The pump has been started!';
+}
+
+pumpStoppedMsg = () => {
+	return 'The pump has been stopped!';
+}
+
 // check if the lengh of an array is smaller than a number
 const checkLength = (arrayLen, N) => {
     return arrayLen < N ?  false :  true;
 }
 
-module.exports = {commandList, checkLength};
+module.exports = {commandList, pumpStartedMsg, pumpStoppedMsg, checkLength};

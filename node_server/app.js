@@ -158,7 +158,7 @@ servers.bot.command('/start_pump', async (context) => {
         context.reply('pump already started');
     } else {
         pump_started = true;
-        context.reply('pump started');
+        context.reply(supportFunction.pumpStartedMsg());
         console.log('pump started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     }
 })
@@ -168,7 +168,7 @@ servers.bot.command('/stop_pump', async (context) => {
 
     if (pump_started) {
         pump_started = false;
-        context.reply('pump stopped');
+        context.reply(supportFunction.pumpStoppedMsg());
         console.log('pump stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     } else {
         context.reply('pump is not running');
