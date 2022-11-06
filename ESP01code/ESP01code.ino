@@ -13,9 +13,7 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 #include <Arduino_JSON.h>
-
-const char* ssid = "A52s wifi";
-const char* password = "dongiliwifi";
+#include <WiFiManager.h>
 
 //Your Domain name with URL path or IP address with path
 const char* serverName1 = "http://192.168.78.205:3000/addSensorsData";
@@ -36,17 +34,27 @@ String httpGETRequest(const char* serverName);
 void setup() {
   Serial.begin(115200);
 
+  WiFiManager wm;
+
+  // reset settings - wipe stored credentials for testing
+  // these are stored by the esp library
+  wm.resetSettings();
+
+  res = wm.autoConnect("ESP01ConnecitonSetup", "password");
+
+   if(!res) {
+        Serial.println("Failed to connect");
+        // ESP.restart();
+    } 
+    else {
+        //if you get here you have connected to the WiFi    
+        Serial.println("");
+        Serial.print("Connected to WiFi network with IP Address: ");
+        Serial.println(WiFi.localIP());
+    }
+
   WiFi.begin(ssid, password);
-  //Serial.println("Connecting");
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    //Serial.print(".");
-  }
-  /* Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP()); */
- 
-  //Serial.println("Timer set to 5 seconds (timerDelay variable), it will take 5 seconds before publishing the first reading.");
+
 }
 
 void loop() {
