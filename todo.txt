@@ -11,6 +11,7 @@ Low-level:
     => Definire quantità acqua da dare con la pompa (da provare con un vaso)
 -Debuggare menu schermo
 -Aggiungere luminosità, umidità e temperatura al menu schermo
+-Verificare possibilità di modulare il codice in più files con il capitano
 
 High-level:
 -Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
