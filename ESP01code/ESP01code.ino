@@ -16,8 +16,8 @@
 #include <WiFiManager.h>
 
 //Your Domain name with URL path or IP address with path
-const char* serverName1 = "http://192.168.78.205:3000/addSensorsData";
-const char* serverName2 = "http://192.168.78.205:3000/getPumpState";
+const char* serverName1 = "http://192.168.1.56:3000/addSensorsData";
+const char* serverName2 = "http://192.168.1.56:3000/getPumpState";
 
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
@@ -40,7 +40,7 @@ void setup() {
   // these are stored by the esp library
   wm.resetSettings();
 
-  res = wm.autoConnect("ESP01ConnecitonSetup", "password");
+  bool res = wm.autoConnect("ESP01ConnecitonSetup", "password"); //FASTWEB-Axf5ws - d4bEH4kaz7
 
    if(!res) {
         Serial.println("Failed to connect");
@@ -53,8 +53,7 @@ void setup() {
         Serial.println(WiFi.localIP());
     }
 
-  WiFi.begin(ssid, password);
-
+  //WiFi.begin(ssid, password);
 }
 
 void loop() {
