@@ -8,29 +8,28 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define NUM_OPT 4
+#define NUM_OPT 4 //number of options for menu
+#define TIMER_PERIOD 0x8000 // = 32768, one sec timer
+#define upLimitController 12200 //controller movement up-limit
+#define lowLimitController 4200 //controller movement low-limit
 
-#define TIMER_PERIOD 0x8000 // = 32768
-
-/* Initializing Variables */
+//Initializing variable for temperature ADC
 static volatile uint16_t curADCResult;
+
+//Initializing variable for joystick ADC
 static uint16_t resultsBuffer[2];
 
-//controller movement limit
-const int upLimitController = 12200;
-const int lowLimitController = 4200;
+//Graphic library context
+Graphics_Context g_sContext;
+
+//menu options
+int8_t * menuOpt[NUM_OPT] = { "Moisture graphic", "Moisture percentage", "Start the pump", "Stop the pump" };
 
 //current menu option selected
 short currentOpt = 0;
 
-//menu options
-int8_t * menuOpt[NUM_OPT] = {"Moisture graphic","Moisture percentage","Start the pump","Stop the pump"};
-
 //boolean variable that indicates if the pump is working
 bool pumpOn = false;
-
-//Graphic library context
-Graphics_Context g_sContext;
 
 //Variable for storing temperature value returned from TMP006
 float temp;
@@ -38,7 +37,7 @@ float temp;
 //Timer_A UpMode Configuration Parameter
 const Timer_A_UpModeConfig upConfig ={
     TIMER_A_CLOCKSOURCE_ACLK,               //ACLK Clock Source
-    TIMER_A_CLOCKSOURCE_DIVIDER_1,          //32 KHz / 1 = 32 KHz / 32 000 = 1
+    TIMER_A_CLOCKSOURCE_DIVIDER_1,          //32 KHz / 1 = 32 KHz / 32 768 = 1
     TIMER_PERIOD,                           //Every second
     TIMER_A_TAIE_INTERRUPT_DISABLE,         //Disable Timer interrupt
     TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,     //Enable CCR0 interrupt
@@ -123,6 +122,7 @@ void adcInit(){
     ADC14_toggleConversionTrigger();
 }
 
+//Mapping moisture value
 float map(uint16_t AdcValue){
 
     const float airValue = 14200.0;
@@ -138,8 +138,7 @@ float map(uint16_t AdcValue){
     return percentage;
 }
 
-//Main
-
+//Generate menu for boosterpack's screen
 void generateMenu(){
 
     Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
@@ -179,35 +178,18 @@ void refreshMenu(){
             Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
             verticalPos+=10;
         }
-
-
-
 }
 
 void clearLeds(){
 
-    //turn off booster pack leds
+    //turn off boosterpack's leds
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN4);
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN6);
     GPIO_setOutputLowOnPin(GPIO_PORT_P5, GPIO_PIN6);
 
 }
 
-void portInit(){
-
-    //set as output leds boosterpack
-    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN4);
-    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN6);
-    GPIO_setAsOutputPin(GPIO_PORT_P5,GPIO_PIN6);
-
-    //set P4.1 for relay control
-    GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
-    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1);
-
-    clearLeds();
-}
-
-
+//Turn on boosterpack's leds
 void redOn(){
     GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN6);
 }
@@ -221,7 +203,21 @@ void greenOn(){
     GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN4);
 }
 
-void _buttonsInit(){
+void portInit(){
+
+    //set as output boosterpack's leds
+    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN4);
+    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN6);
+    GPIO_setAsOutputPin(GPIO_PORT_P5,GPIO_PIN6);
+
+    //set P4.1 for relay control
+    GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
+    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1); //relay activates when P4.1 = 0
+
+    clearLeds();
+}
+
+void buttonsInit(){
 
     //setting pin as input in pull up mode
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5,GPIO_PIN1);
@@ -257,7 +253,7 @@ void _hwInit(){
 
     _graphicsInit();
     portInit();
-    _buttonsInit();
+    buttonsInit();
     adcInit();
 }
 
@@ -289,22 +285,24 @@ void stopPump(){
     }
 }
 
+/*---Main---*/
 int main(void){
 
     _hwInit();
-    //configureTimerOneSec();
     generateMenu();
+    //configureTimerOneSec();
 
     while (1){
         PCM_gotoLPM0(); //Sleep mode
     }
 }
 
+//Button two boosterpack
 void PORT3_IRQHandler(){
 
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P3);
-    /* clear interrupt flag (to clear pending interrupt indicator */
-    GPIO_clearInterruptFlag(GPIO_PORT_P3, status);
+    GPIO_clearInterruptFlag(GPIO_PORT_P3, status); //clear interrupt flag
+
     /* check if we received P3.5 interrupt*/
     if((status & GPIO_PIN5)){
        printf("second button pressed\n");
@@ -313,15 +311,19 @@ void PORT3_IRQHandler(){
     }
 }
 
+//Button one boosterpack
 void PORT5_IRQHandler(){
 
-    printf("first button interrupt \n");
+    //printf("first button interrupt \n");
 
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P5);
-    GPIO_clearInterruptFlag(GPIO_PORT_P5, status);
+    GPIO_clearInterruptFlag(GPIO_PORT_P5, status); //clear interrupt flag
+
     /* check if we received P5.1 interrupt*/
-    if((status & GPIO_PIN1)){
+    if(status & GPIO_PIN1){
+
        printf("first button pressed\n");
+
        switch(currentOpt){
            case 0: //moisture graphic
                break;
@@ -340,7 +342,7 @@ void PORT5_IRQHandler(){
     }
 }
 
-//Will be called when TA0CCR0 CCIFG is set
+//Timer one sec, will be called when TA0CCR0 CCIFG is set
 void TA1_0_IRQHandler(){
 
     //Clear interrupt flag
@@ -350,14 +352,13 @@ void TA1_0_IRQHandler(){
     //ADC14_toggleConversionTrigger();
 }
 
-/* ADC Interrupt Handler. This handler is called whenever there is a conversion
- * that is finished for ADC_MEM0.
-*/
+//ADC Interrupt Handler. This handler is called whenever there is a conversion that is finished for ADC_MEM0.
 void ADC14_IRQHandler(void){
 
     uint64_t status = ADC14_getEnabledInterruptStatus();
-    ADC14_clearInterruptFlag(status);
+    ADC14_clearInterruptFlag(status); //clear interrupt flag
 
+    //moisture conversion
     if (ADC_INT0 & status){
 
         /* should be between 0 and 16384*/
@@ -374,9 +375,10 @@ void ADC14_IRQHandler(void){
 
     }
 
+    //joystick conversion
     if(status & ADC_INT1){
 
-        /* Store ADC14 conversion results */
+        //store ADC14 conversion results
         //resultsBuffer[0] = ADC14_getResult(ADC_MEM0);
         resultsBuffer[1] = ADC14_getResult(ADC_MEM1);
 
@@ -384,6 +386,7 @@ void ADC14_IRQHandler(void){
 
         //joystick up
         if (yVal < lowLimitController){
+
             if(currentOpt < 3)currentOpt++;
             printf("currentOpt->%d\n",currentOpt);
             refreshMenu();
@@ -393,6 +396,7 @@ void ADC14_IRQHandler(void){
 
         //joystick down
         if(yVal > upLimitController){
+
             if(currentOpt > 0)currentOpt--;
             printf("currentOpt->%d\n",currentOpt);
             refreshMenu();
@@ -400,22 +404,14 @@ void ADC14_IRQHandler(void){
             for(i = 0 ; i < 1000000 ; i++);
         }
 
+        //-----DA TOGLIERE-------
+
         char string[10];
         /*sprintf(string, "X: %5d", resultsBuffer[0]);
-        Graphics_drawStringCentered(&g_sContext,
-                                        (int8_t *)string,
-                                        8,
-                                        64,
-                                        50,
-                                        OPAQUE_TEXT);*/
+        Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 50, OPAQUE_TEXT);*/
 
         sprintf(string, "Y: %5d", resultsBuffer[1]);
-        /*Graphics_drawStringCentered(&g_sContext,
-                                        (int8_t *)string,
-                                        8,
-                                        64,
-                                        70,
-                                        OPAQUE_TEXT);*/
+        /*Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 70, OPAQUE_TEXT);*/
 
         /* Determine if JoyStick button is pressed */
         int buttonPressed = 0;
@@ -423,12 +419,11 @@ void ADC14_IRQHandler(void){
             buttonPressed = 1;
 
         sprintf(string, "Button: %d", buttonPressed);
-       /* Graphics_drawStringCentered(&g_sContext,
-                                        (int8_t *)string,
-                                        AUTO_STRING_LENGTH,
-                                        64,
-                                        90,
-                                        OPAQUE_TEXT);*/
+        /* Graphics_drawStringCentered(&g_sContext, (int8_t *)string, AUTO_STRING_LENGTH, 64, 90, OPAQUE_TEXT);*/
+
+        //-------------------
     }
+
+    //toggle another conversion
     ADC14_toggleConversionTrigger();
 }

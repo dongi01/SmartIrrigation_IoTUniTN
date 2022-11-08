@@ -12,6 +12,7 @@ Low-level:
 -Debuggare menu schermo
 -Aggiungere luminosità, umidità e temperatura al menu schermo
 -Verificare possibilità di modulare il codice in più files con il capitano
+-rimuovere array da joystick conversion
 
 High-level:
 -Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
