@@ -2,6 +2,8 @@ Add README
 
 Implementare socket
 
+Rendere sensori e pompa wireless *se lo facciamo ci sbora addosso*
+
 Low-level:
 -Comunicazione seriale => impossibile chiuderla
 -Sensore umidità
