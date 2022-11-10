@@ -7,6 +7,7 @@
 #include "HAL_TMP006.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define NUM_OPT 4 //number of options for menu
 #define TIMER_PERIOD 0x8000 // = 32768, one sec timer
@@ -16,8 +17,8 @@
 //Initializing variable for temperature ADC
 static volatile uint16_t curADCResult;
 
-//Initializing variable for joystick ADC
-static uint16_t resultsBuffer[2];
+//Initializing variable for joystick X and Y ADC
+//static uint16_t resultsBuffer[2];
 
 //Graphic library context
 Graphics_Context g_sContext;
@@ -153,7 +154,8 @@ void generateMenu(){
             sprintf(toWrite,"%s", menuOpt[i]);
         }
 
-        printf("Tryna printin %s\n", toWrite);
+        //printf("Tryna printin %s\n", toWrite);
+
         Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
         verticalPos+=10;
     }
@@ -165,19 +167,23 @@ void refreshMenu(){
     Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
 
     int32_t verticalPos = 60;
-        int i=0;
-        char toWrite[30];
-        for(i = 0 ; i < NUM_OPT ; i++){
-            if(i == currentOpt){
-                sprintf(toWrite,"->%s", menuOpt[i]);
-            }else{
-                sprintf(toWrite,"%s", menuOpt[i]);
-            }
+    int i = 0;
+    char toWrite[22] = "";
 
-            //printf("Tryna printin %s\n", toWrite);
-            Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
-            verticalPos+=10;
+    for(i = 0 ; i < NUM_OPT ; i++){
+
+        if(i == currentOpt){
+            sprintf(toWrite,"->%s", menuOpt[i]);
+        }else{
+            sprintf(toWrite," %s ", menuOpt[i]);
         }
+
+        //printf("Tryna printin %s\n", toWrite);
+
+        Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
+
+        verticalPos+=10;
+    }
 }
 
 void clearLeds(){
@@ -213,6 +219,10 @@ void portInit(){
     //set P4.1 for relay control
     GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
     GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1); //relay activates when P4.1 = 0
+
+    //set P1.0 for relay check
+    GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN0);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0);
 
     clearLeds();
 }
@@ -264,10 +274,11 @@ void startPump(){
 
     //check if pump is already on -- controllare stampa display --
     if(pumpOn){
-        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already on", AUTO_STRING_LENGTH, 64, 70, OPAQUE_TEXT);
+        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already on", AUTO_STRING_LENGTH, 64, 75, OPAQUE_TEXT);
     }else{
         pumpOn = true;
         GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1); //close relay and turn on pump
+        GPIO_setOutputHighOnPin(GPIO_PORT_P1,GPIO_PIN0); //turn on led when pump is working
     }
 }
 
@@ -278,10 +289,11 @@ void stopPump(){
 
     //check if pump is already off -- controllare stampa display --
     if(!pumpOn){
-        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already off", AUTO_STRING_LENGTH, 64, 70, OPAQUE_TEXT);
+        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already off", AUTO_STRING_LENGTH, 64, 75, OPAQUE_TEXT);
     }else{
         pumpOn = false;
         GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1); //open relay and turn off pump
+        GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0); //turn off led when pump isn't working
     }
 }
 
@@ -297,7 +309,7 @@ int main(void){
     }
 }
 
-//Button two boosterpack
+//Button two boosterpack interrupt
 void PORT3_IRQHandler(){
 
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P3);
@@ -305,13 +317,16 @@ void PORT3_IRQHandler(){
 
     /* check if we received P3.5 interrupt*/
     if((status & GPIO_PIN5)){
-       printf("second button pressed\n");
+
+       //printf("second button pressed\n");
+
+       Graphics_clearDisplay(&g_sContext); //clear display to avoid graphic bugs
        generateMenu();
        //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN4);
     }
 }
 
-//Button one boosterpack
+//Button one boosterpack interrupt
 void PORT5_IRQHandler(){
 
     //printf("first button interrupt \n");
@@ -322,19 +337,24 @@ void PORT5_IRQHandler(){
     /* check if we received P5.1 interrupt*/
     if(status & GPIO_PIN1){
 
-       printf("first button pressed\n");
+       //printf("first button pressed\n");
 
        switch(currentOpt){
+
            case 0: //moisture graphic
                break;
+
            case 1: //moisture percentage
                break;
+
            case 2: //start pump
                startPump();
                break;
+
            case 3: //stop pump
                stopPump();
                break;
+
            default:
                printf("problems problems problems\n");
        }
@@ -380,50 +400,57 @@ void ADC14_IRQHandler(void){
 
         //store ADC14 conversion results
         //resultsBuffer[0] = ADC14_getResult(ADC_MEM0);
-        resultsBuffer[1] = ADC14_getResult(ADC_MEM1);
-
-        int yVal = resultsBuffer[1];
-
-        //joystick up
-        if (yVal < lowLimitController){
-
-            if(currentOpt < 3)currentOpt++;
-            printf("currentOpt->%d\n",currentOpt);
-            refreshMenu();
-            int i = 0;
-            for(i = 0 ; i < 1000000 ; i++);
-        }
+        //resultsBuffer[1] = ADC14_getResult(ADC_MEM1);
+        //int yVal = resultsBuffer[1];
+        int yVal = ADC14_getResult(ADC_MEM1);
 
         //joystick down
-        if(yVal > upLimitController){
+        if (yVal < lowLimitController){
 
-            if(currentOpt > 0)currentOpt--;
-            printf("currentOpt->%d\n",currentOpt);
+            if(currentOpt == 3){
+                currentOpt = 0;
+            }else{
+                currentOpt++;
+            }
+            //printf("currentOpt->%d\n",currentOpt);
             refreshMenu();
             int i = 0;
-            for(i = 0 ; i < 1000000 ; i++);
+            for(i=0; i<600000; i++);
         }
 
-        //-----DA TOGLIERE-------
+        //joystick up
+        if(yVal > upLimitController){
 
-        char string[10];
-        /*sprintf(string, "X: %5d", resultsBuffer[0]);
-        Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 50, OPAQUE_TEXT);*/
+            if(currentOpt == 0){
+                currentOpt = 3;
+            }else{
+                currentOpt--;
+            }
+            //printf("currentOpt->%d\n",currentOpt);
+            refreshMenu();
+            int i = 0;
+            for(i=0; i<600000; i++);
+        }
+
+        /*-----DA TOGLIERE-------*/
+
+        /*char string[10];
+        sprintf(string, "X: %5d", resultsBuffer[0]);
+        Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 50, OPAQUE_TEXT);
 
         sprintf(string, "Y: %5d", resultsBuffer[1]);
-        /*Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 70, OPAQUE_TEXT);*/
+        //Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 70, OPAQUE_TEXT);
 
-        /* Determine if JoyStick button is pressed */
+        //Determine if JoyStick button is pressed
         int buttonPressed = 0;
         if (!(P4IN & GPIO_PIN1))
             buttonPressed = 1;
 
         sprintf(string, "Button: %d", buttonPressed);
-        /* Graphics_drawStringCentered(&g_sContext, (int8_t *)string, AUTO_STRING_LENGTH, 64, 90, OPAQUE_TEXT);*/
+        //Graphics_drawStringCentered(&g_sContext, (int8_t *)string, AUTO_STRING_LENGTH, 64, 90, OPAQUE_TEXT);*/
 
-        //-------------------
+        /*-------------------*/
     }
 
-    //toggle another conversion
-    ADC14_toggleConversionTrigger();
+    ADC14_toggleConversionTrigger(); //toggle another conversion
 }
