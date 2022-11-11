@@ -5,13 +5,13 @@ Implementare socket
 Rendere sensori e pompa wireless *se lo facciamo ci sbora addosso*
 
 Low-level:
--Comunicazione seriale => impossibile chiuderla
--Sensore umidità
--Sensore luminosità
--Sensore temperatura
+-Comunicazione seriale 
+    => Mappare e comprimere dati
+    => Comunicazione bidirezionale
+-Sensore umidità, luminosità, temperatura
+-Aggiungere luminosità, umidità e temperatura al menu schermo
 -Automatizzare start_pump
     => Definire quantità acqua da dare con la pompa (da provare con un vaso)
--Aggiungere luminosità, umidità e temperatura al menu schermo
 -Verificare possibilità di modulare il codice in più files con il capitano
 -Ottimizzare codice AL MASSIMO
 
