@@ -8,6 +8,7 @@ void decompressedData(uint8_t recivedData, uint8_t* dataArray);
 bool compressDataAdvanced(uint8_t input1, uint8_t input2, uint8_t input3, uint8_t* arrayResult);
 void decompressDataAdvanced(uint8_t* inputArray, uint8_t* outputArray);
 bool checkDimension(uint8_t bitDimension, uint8_t variable);
+int mapValue(uint8_t value, uint8_t valueDim, int minF, int maxF);
 
 int main(){
 
@@ -64,6 +65,7 @@ int main(){
         cout << "error: use 4 bit input 1 and 3 and 6 bit input 2" << endl;
     }
 
+    cout << mapValue(4, 6, 20, 200) << endl;
     
     return 0;
 }
@@ -153,7 +155,21 @@ void decompressDataAdvanced(uint8_t* inputArray, uint8_t* outputArray) {
     outputArray[1] = ((firstByteCopy & mask) << 3) + (secondByteCopy & mask);
 }
 
+// checks if the input number has the right dimention
 bool checkDimension(uint8_t bitDimension, uint8_t variable) {
     variable = variable >> bitDimension;
     return (variable == 0) ? true : false;
+}
+
+// maps the input value in a larger range
+int mapValue(uint8_t value, uint8_t valueDim, int minF, int maxF) {
+    int returnValue = -1;
+    if (checkDimension(valueDim, value)) {
+        if (valueDim == 4) {
+            returnValue = minF + value * (maxF - minF) / 15; // 15 max value for 4 bits
+        } else if (valueDim == 6) {
+            returnValue = minF + value * (maxF - minF) / 63; // 63 max value for 6 bits
+        }
+    }
+    return returnValue;
 }
