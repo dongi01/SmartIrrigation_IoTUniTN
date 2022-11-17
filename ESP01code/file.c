@@ -104,7 +104,7 @@ void loop() {
       http.addHeader("Content-Type", "application/json");
       char tmp[100];
       char temp[] = "4";
-      sprintf(tmp, "{\"soil_humidity\":\"%d\",\"brightness\":\"123.123\"}",temp);
+      sprintf(tmp, "{\"soil_moisture\":\"%d\",\"brightness\":\"123.123\"}",temp);
       //Serial.println(tmp);
       int httpResponseCode = http.POST(tmp);
 

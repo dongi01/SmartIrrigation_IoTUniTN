@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
 
 // data schema for collection 'Sensors_data' documents
 const DataSchema = new mongoose.Schema({
-	soil_humidity: Number,
+	soil_moisture: Number,
 	brightness: Number,
+    temperature: Number,
 	date: {type: Date, default: new Date()}
 },{ collection: DATABASE });
 
@@ -27,7 +28,7 @@ const removeAllData = () => {
         // after removed all data, insert a new document with parameter to 0 so when client asks for data, server won't crush
         // better not to do this because if the user asks for all data in the db, it is difficult to manage the undefined entry
         /* insertData({
-            soil_humidity: undefined,
+            soil_moisture: undefined,
             brightness: undefined,
         }); */
         console.log("all data removed");
@@ -49,8 +50,9 @@ const getLastNData = async (N) => {
 // return parse data
 const parseData = (dataObj) => {
     return {
-        soil_humidity: dataObj.soil_humidity,
-        brightness: dataObj.brightness
+        soil_moisture: dataObj.soil_moisture,
+        brightness: dataObj.brightness,
+        temperature: dataObj.temperature
     };
 }
 

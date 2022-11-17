@@ -35,7 +35,7 @@ void loop(){
     //{
         //char c = client.read();
         //Serial.write(c);
-        client.write("{\"soil_humidity\":\"123.345\",\"brightness\":\"123.123\"}");
+        client.write("{\"soil_moisture\":\"123.345\",\"brightness\":\"123.123\"}");
     //}
     Serial.print('\n');
 

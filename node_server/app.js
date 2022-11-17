@@ -25,15 +25,15 @@ servers.bot.start(async (context) => {
     context.reply(supportFunction.commandList());
 })
 
-// print last value of humidity in the db
-servers.bot.command('get_last_humidity', async (context) => {
+// print last value of moisture in the db
+servers.bot.command('get_last_moisture', async (context) => {
 
     let user = await usersAPI.searchUser(context.message.from.id);
 
     if(user.realtime === false) {
         let data = await dataAPI.getLastData();
-        context.reply('soil humidity \u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity);
-        console.log('humidity sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        context.reply(supportFunction.printMoisture(dataAPI.parseData(data).soil_moisture));
+        console.log('moisture sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
@@ -46,21 +46,39 @@ servers.bot.command('get_last_brightness', async (context) => {
 
     if(user.realtime === false){
         let data = await dataAPI.getLastData();
-        context.reply('enviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness);
+        context.reply(supportFunction.printBrightness(dataAPI.parseData(data).brightness));
         console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
 })
 
-// print last value of humidity and brightness in the db
+// print last value of temperature in the db
+servers.bot.command('get_last_temperature', async (context) => {
+
+    let user = await usersAPI.searchUser(context.message.from.id);
+
+    if(user.realtime === false){
+        let data = await dataAPI.getLastData();
+        context.reply(supportFunction.printTemperature(dataAPI.parseData(data).temperature));
+        console.log('temperature sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    }else{
+        context.reply('You are in realtime mode, please exit from it to use this command');
+    }
+})
+
+// print last value of moisture and brightness in the db
 servers.bot.command('get_last_data', async (context) => {
 
     let user = await usersAPI.searchUser(context.message.from.id);
 
     if(user.realtime === false){
         let data = await dataAPI.getLastData();
-        context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness );
+        context.reply(supportFunction.printData(
+            dataAPI.parseData(data).soil_moisture,
+            dataAPI.parseData(data).brightness,
+            dataAPI.parseData(data).temperature)
+        );
         console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
@@ -78,8 +96,11 @@ servers.bot.command('get_realtime_data', async (context) => {
 
         user_interval = setInterval( async () => {
             let data = await dataAPI.getLastData();
-            context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(data).soil_humidity + '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(data).brightness )
-            .catch(error => {
+            context.reply(supportFunction.printData(
+                dataAPI.parseData(data).soil_moisture,
+                dataAPI.parseData(data).brightness,
+                dataAPI.parseData(data).temperature)
+            ).catch(error => {
                 // if the user stops the bot during realtime mode, delete user from db and clear interval
 				if (error.response && error.response.error_code === 403) {
 					usersAPI.removeUser(context.message.from.id);
@@ -113,7 +134,7 @@ servers.bot.command('stop_realtime', async (context) => {
     } 
 })
 
-// print last value of humidity and brightness in the db
+// print last value of moisture and brightness in the db
 servers.bot.command('get_last_N_data', async (context) => {
 
     msg = context.message.text;
@@ -126,16 +147,19 @@ servers.bot.command('get_last_N_data', async (context) => {
             if (N === NaN) {
                 context.reply('You have to insert a number after the command');
             } else {
-                console.log(N + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+                console.log(dataArrayDim + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
 
                 if (!supportFunction.checkLength(dataArrayDim, N)) {
                     context.reply('There are only ' + dataArrayDim + ' documents');
                 }
 
                 dataArray.forEach(dataObj => {
-                    if (dataAPI.parseData(dataObj).soil_humidity != undefined) {
-                        context.reply('soil humidity\u{1F4A7}: ' + dataAPI.parseData(dataObj).soil_humidity + 
-                        '\nenviromental brightness\u{2600}: ' + dataAPI.parseData(dataObj).brightness );
+                    if (dataAPI.parseData(dataObj).soil_moisture != undefined) {
+                        context.reply(supportFunction.printData(
+                            dataAPI.parseData(dataObj).soil_moisture,
+                            dataAPI.parseData(dataObj).brightness,
+                            dataAPI.parseData(dataObj).temperature)
+                        );
                     }
                 });
             }
@@ -215,6 +239,7 @@ servers.app.post('/addSensorsData', (req, res) => {
     res.send("post OK");
 })
 
+// probably it will be removed and we will send http msg to ESP32 for notify the start of the pump
 // listens for get request and send whether or not the pump_started flag is true 
 servers.app.get('/getPumpState', (req, res) => {
     console.log('get request recived');
