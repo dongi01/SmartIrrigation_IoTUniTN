@@ -159,10 +159,7 @@ void TA1_0_IRQHandler(){
     //clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
 
-    //printf("Dc\n");
-
     UART_transmitData(EUSCI_A2_BASE, 254);
     UART_transmitData(EUSCI_A2_BASE, 39);
     UART_transmitData(EUSCI_A2_BASE, 29);
-
 }
