@@ -8,7 +8,9 @@ void decompressedData(uint8_t recivedData, uint8_t* dataArray);
 bool compressDataAdvanced(uint8_t input1, uint8_t input2, uint8_t input3, uint8_t* arrayResult);
 void decompressDataAdvanced(uint8_t* inputArray, uint8_t* outputArray);
 bool checkDimension(uint8_t bitDimension, uint8_t variable);
-int mapValue(uint8_t value, uint8_t valueDim, int minF, int maxF);
+int mapValue4or6bits(uint8_t value, uint8_t valueDim, int minF, int maxF);
+int mapSmallValue7bits(uint8_t value, int minF, int maxF);
+int mapBigValue7bits(uint8_t value, int minI, int maxI);
 
 int main(){
 
@@ -44,7 +46,7 @@ int main(){
     cout << "Decompressing data: output1 = " << (int)output1 << ", output2 = " << (int)output2 << endl;
 */
 
-    uint8_t primo = 15;
+/*     uint8_t primo = 15;
     uint8_t secondo = 38;
     uint8_t terzo = 1;
     uint8_t msgs[2];
@@ -66,6 +68,14 @@ int main(){
     }
 
     cout << mapValue(4, 6, 20, 200) << endl;
+*/
+
+    int grande = 0;
+    int piccolo = 20;
+
+    cout << "grande " << grande << " convertito diventa " << mapBigValue7bits(grande, 0, 10000) << endl;
+    cout << "piccolo " << piccolo << " convertito diventa " << mapSmallValue7bits(piccolo, 0, 100) << endl;
+
     
     return 0;
 }
@@ -162,7 +172,7 @@ bool checkDimension(uint8_t bitDimension, uint8_t variable) {
 }
 
 // maps the input value in a larger range
-int mapValue(uint8_t value, uint8_t valueDim, int minF, int maxF) {
+int mapValue2byteData(uint8_t value, uint8_t valueDim, int minF, int maxF) {
     int returnValue = -1;
     if (checkDimension(valueDim, value)) {
         if (valueDim == 4) {
@@ -173,3 +183,20 @@ int mapValue(uint8_t value, uint8_t valueDim, int minF, int maxF) {
     }
     return returnValue;
 }
+
+// maps the input value in a larger range (reciver side)
+int mapSmallValue7bits(uint8_t value, int minF, int maxF) {
+    int returnValue = -1;
+    if (checkDimension(7, value)) {
+        returnValue = minF + value * (maxF - minF) / 127; // 127 max value for 7 bits
+    }
+    return returnValue;
+}
+
+// maps the input value in a smaller range (sender side)
+int mapBigValue7bits(uint8_t value, int minI, int maxI) {  // I for initial, F for final
+    int returnValue = 0 + ((127 - 0) / (maxI - minI)) * (value - minI);
+    return returnValue;
+}
+
+//output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);
