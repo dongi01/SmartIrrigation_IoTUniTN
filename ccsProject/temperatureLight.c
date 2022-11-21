@@ -131,14 +131,14 @@ void TA1_0_IRQHandler(){
     //printf("%i\n",lux);
 
     //Display temperature
-    char string[10];
-    sprintf(string, "%.2f", temp);
-    strcat(string, " C");
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) string, AUTO_STRING_LENGTH, 55, 70, OPAQUE_TEXT);
+    char outString[10];
+    sprintf(outString, "%.2f", temp);
+    strcat(outString, " C");
+    Graphics_drawStringCentered(&g_sContext, (int8_t *) outString, AUTO_STRING_LENGTH, 55, 70, OPAQUE_TEXT);
 
-    sprintf(string, "%d", lux);
-    strcat(string, " Lux");
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) string, AUTO_STRING_LENGTH, 55, 80, OPAQUE_TEXT);
+    sprintf(outString, "%d", lux);
+    strcat(outString, " Lux");
+    Graphics_drawStringCentered(&g_sContext, (int8_t *) outString, AUTO_STRING_LENGTH, 55, 80, OPAQUE_TEXT);
 
     //Clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
