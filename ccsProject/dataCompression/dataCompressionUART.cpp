@@ -11,6 +11,7 @@ bool checkDimension(uint8_t bitDimension, uint8_t variable);
 int mapValue4or6bits(uint8_t value, uint8_t valueDim, int minF, int maxF);
 int SevenBitsToRange(uint8_t value, int minF, int maxF);
 int RangeTo7bits(int value, int minI, int maxI);
+uint8_t setControlBit(uint8_t firstData);
 
 int main(){
 
@@ -199,5 +200,8 @@ int RangeTo7bits(int value, int minI, int maxI) {  // I for initial, F for final
     return returnValue;
 }
 
+uint8_t setControlBit(uint8_t firstData){
+    return 128 + firstData;
+}
 // general formula for mapping value in different ranges
 // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);
