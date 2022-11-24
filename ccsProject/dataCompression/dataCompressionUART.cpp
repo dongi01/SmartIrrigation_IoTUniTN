@@ -10,7 +10,9 @@ void decompressDataAdvanced(uint8_t* inputArray, uint8_t* outputArray);
 bool checkDimension(uint8_t bitDimension, uint8_t variable);
 int mapValue4or6bits(uint8_t value, uint8_t valueDim, int minF, int maxF);
 int SevenBitsToRange(uint8_t value, int minF, int maxF);
-int RangeTo7bits(int value, int minI, int maxI);
+uint8_t RangeTo7bits(int value, int minI, int maxI);
+uint8_t setControlBit(uint8_t firstData);
+uint8_t mapToPercentage(int value, int minI, int maxI);
 
 int main(){
 
@@ -70,11 +72,14 @@ int main(){
     cout << mapValue(4, 6, 20, 200) << endl;
 */
 
-    int grande = 5000;
-    int piccolo = 225;
+    int grande = 16000;
+    int piccolo = 14000;
 
     cout << "grande " << grande << " convertito diventa " << RangeTo7bits(grande, 0, 10000) << endl;
     cout << "piccolo " << piccolo << " convertito diventa " << SevenBitsToRange(piccolo, 0, 10000) << endl;
+
+
+    cout << "to percetuale " << (int)mapToPercentage(15346, piccolo, grande) << endl;
 
     
     return 0;
@@ -194,10 +199,18 @@ int SevenBitsToRange(uint8_t value, int minF, int maxF) {
 }
 
 // maps the input value in a smaller range (sender side)
-int RangeTo7bits(int value, int minI, int maxI) {  // I for initial, F for final
-    int returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
+uint8_t RangeTo7bits(int value, int minI, int maxI) {  // I for initial, F for final
+    uint8_t returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
     return returnValue;
 }
 
+uint8_t setControlBit(uint8_t firstData){
+    return 128 + firstData;
+}
+
+uint8_t mapToPercentage(int value, int minI, int maxI){
+    uint8_t returnValue = 0.0 + (100.0 / (maxI - minI)) * (value - minI);;
+    return returnValue;
+}
 // general formula for mapping value in different ranges
 // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);
