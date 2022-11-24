@@ -1,36 +1,25 @@
 #include <ti/devices/msp432p4xx/inc/msp.h>
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 #include <ti/grlib/grlib.h>
-#include "LcdDriver/Crystalfontz128x128_ST7735.h"
-#include "LcdDriver/HAL_MSP_EXP432P401R_Crystalfontz128x128_ST7735.h"
-#include "HAL_I2C.h"
-#include "HAL_TMP006.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
-#define NUM_OPT 4 //number of options for menu
+#include "LcdDriver/Crystalfontz128x128_ST7735.h"
+#include "LcdDriver/HAL_MSP_EXP432P401R_Crystalfontz128x128_ST7735.h"
+#include "HAL_I2C.h"
+#include "HAL_TMP006.h"
+#include "screen.c"
+#include "pump.c"
+#include "button.c"
+
+//#define NUM_OPT 4 //number of options for menu
 #define TIMER_PERIOD 0x8000 // = 32768, one sec timer
 #define upLimitController 12200 //controller movement up-limit
 #define lowLimitController 4200 //controller movement low-limit
 
 //Initializing variable for temperature ADC
 static volatile uint16_t curADCResult;
-
-//Initializing variable for joystick X and Y ADC
-//static uint16_t resultsBuffer[2];
-
-//Graphic library context
-Graphics_Context g_sContext;
-
-//menu options
-int8_t * menuOpt[NUM_OPT] = { "Moisture graphic", "Moisture percentage", "Start the pump", "Stop the pump" };
-
-//current menu option selected
-short currentOpt = 0;
-
-//boolean variable that indicates if the pump is working
-bool pumpOn = false;
 
 //Variable for storing temperature value returned from TMP006
 float temp;
@@ -59,22 +48,6 @@ void configureTimerOneSec(){
 
     //Enable MASTER interrupts
     Interrupt_enableMaster();
-}
-
-void _graphicsInit(){
-
-    //Initializes display
-    Crystalfontz128x128_Init();
-
-    //Set default screen orientation
-    Crystalfontz128x128_SetOrientation(LCD_ORIENTATION_UP);
-
-    //Initializes graphics context
-    Graphics_initContext(&g_sContext, &g_sCrystalfontz128x128, &g_sCrystalfontz128x128_funcs);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_WHITE);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    GrContextFontSet(&g_sContext, &g_sFontFixed6x8);
-    Graphics_clearDisplay(&g_sContext);
 }
 
 void adcInit(){
@@ -139,82 +112,10 @@ float map(uint16_t AdcValue){
     return percentage;
 }
 
-//Generate menu for boosterpack's screen
-void generateMenu(){
 
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
 
-    int32_t verticalPos = 60;
-    int i=0;
-    char toWrite[22];
-    for(i = 0 ; i < NUM_OPT ; i++){
-        if(i == currentOpt){
-            sprintf(toWrite,"->%s", menuOpt[i]);
-        }else{
-            sprintf(toWrite,"%s", menuOpt[i]);
-        }
-
-        //printf("Tryna printin %s\n", toWrite);
-
-        Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
-        verticalPos+=10;
-    }
-}
-
-void refreshMenu(){
-
-    //Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
-
-    int32_t verticalPos = 60;
-    int i = 0;
-    char toWrite[22] = "";
-
-    for(i = 0 ; i < NUM_OPT ; i++){
-
-        if(i == currentOpt){
-            sprintf(toWrite,"->%s", menuOpt[i]);
-        }else{
-            sprintf(toWrite," %s ", menuOpt[i]);
-        }
-
-        //printf("Tryna printin %s\n", toWrite);
-
-        Graphics_drawStringCentered(&g_sContext,(int8_t *) toWrite, AUTO_STRING_LENGTH, 64, verticalPos, OPAQUE_TEXT);
-
-        verticalPos+=10;
-    }
-}
-
-void clearLeds(){
-
-    //turn off boosterpack's leds
-    GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN4);
-    GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN6);
-    GPIO_setOutputLowOnPin(GPIO_PORT_P5, GPIO_PIN6);
-
-}
-
-//Turn on boosterpack's leds
-void redOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN6);
-}
-
-void blueOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P5, GPIO_PIN6);
-
-}
-
-void greenOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN4);
-}
 
 void portInit(){
-
-    //set as output boosterpack's leds
-    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN4);
-    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN6);
-    GPIO_setAsOutputPin(GPIO_PORT_P5,GPIO_PIN6);
 
     //set P4.1 for relay control
     GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
@@ -223,22 +124,6 @@ void portInit(){
     //set P1.0 for relay check
     GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN0);
     GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0);
-
-    clearLeds();
-}
-
-void buttonsInit(){
-
-    //setting pin as input in pull up mode
-    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5,GPIO_PIN1);
-    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3,GPIO_PIN5);
-
-    //enabling interrupt
-    GPIO_enableInterrupt(GPIO_PORT_P5,GPIO_PIN1);
-    GPIO_enableInterrupt(GPIO_PORT_P3,GPIO_PIN5);
-
-    Interrupt_enableInterrupt(INT_PORT5);
-    Interrupt_enableInterrupt(INT_PORT3);
 }
 
 void _hwInit(){
@@ -263,38 +148,9 @@ void _hwInit(){
 
     _graphicsInit();
     portInit();
+    ledPortsInit();
     buttonsInit();
     adcInit();
-}
-
-void startPump(){
-
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Starting pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
-
-    //check if pump is already on -- controllare stampa display --
-    if(pumpOn){
-        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already on", AUTO_STRING_LENGTH, 64, 75, OPAQUE_TEXT);
-    }else{
-        pumpOn = true;
-        GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN1); //close relay and turn on pump
-        GPIO_setOutputHighOnPin(GPIO_PORT_P1,GPIO_PIN0); //turn on led when pump is working
-    }
-}
-
-void stopPump(){
-
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, (int8_t *) "Stopping pump", AUTO_STRING_LENGTH, 64, 60, OPAQUE_TEXT);
-
-    //check if pump is already off -- controllare stampa display --
-    if(!pumpOn){
-        Graphics_drawStringCentered(&g_sContext, (int8_t *) "Pump is already off", AUTO_STRING_LENGTH, 64, 75, OPAQUE_TEXT);
-    }else{
-        pumpOn = false;
-        GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN1); //open relay and turn off pump
-        GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0); //turn off led when pump isn't working
-    }
 }
 
 /*---Main---*/
@@ -317,27 +173,19 @@ void PORT3_IRQHandler(){
 
     /* check if we received P3.5 interrupt*/
     if((status & GPIO_PIN5)){
-
-       //printf("second button pressed\n");
-
        Graphics_clearDisplay(&g_sContext); //clear display to avoid graphic bugs
        generateMenu();
-       //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN4);
     }
 }
 
 //Button one boosterpack interrupt
 void PORT5_IRQHandler(){
 
-    //printf("first button interrupt \n");
-
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P5);
     GPIO_clearInterruptFlag(GPIO_PORT_P5, status); //clear interrupt flag
 
     /* check if we received P5.1 interrupt*/
     if(status & GPIO_PIN1){
-
-       //printf("first button pressed\n");
 
        switch(currentOpt){
 
@@ -358,7 +206,6 @@ void PORT5_IRQHandler(){
            default:
                printf("problems problems problems\n");
        }
-       //GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN6);
     }
 }
 
