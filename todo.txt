@@ -13,6 +13,7 @@ Low-level:
 -Sensore luminosità
     => Aggiungere al main
 -Sensore temperatura
+    => Fare controllo temperatura che non superi soglia max
     => Aggiungere al main
 
 -Aggiungere luminosità, umidità e temperatura al menu schermo

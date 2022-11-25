@@ -209,8 +209,10 @@ uint8_t setControlBit(uint8_t firstData){
 }
 
 uint8_t mapToPercentage(int value, int minI, int maxI){
-    uint8_t returnValue = 0.0 + (100.0 / (maxI - minI)) * (value - minI);;
+    uint8_t returnValue = 0.0 + (100.0 / (maxI - minI)) * (value - minI);
     return returnValue;
 }
+
+
 // general formula for mapping value in different ranges
 // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);
