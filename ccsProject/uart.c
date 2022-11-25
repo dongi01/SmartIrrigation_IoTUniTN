@@ -195,8 +195,8 @@ void TA1_0_IRQHandler(){
 
     //Mapping on 7 bits
     uint_fast8_t TXMoisture = mapToPercentage(dataMoisture, 14000, 16384); //16384 max value of ADC
-    uint_fast8_t TXLight = rangeTo7bits(dataLight, 0, 20000);
-    uint_fast8_t TXTemp = rangeTo7bits(dataTemp, 0, 127);
+    uint_fast8_t TXLight = rangeTo7bits(dataLight, 0, 20000); //need to set max value of light
+    uint_fast8_t TXTemp = rangeTo7bits(dataTemp, 0, 127); //max temp is set to 127
 
     //Setting control bit at 1 of first byte
     TXMoisture = setControlBit(TXMoisture);
