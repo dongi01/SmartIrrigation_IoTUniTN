@@ -12,12 +12,24 @@ const commandList = () => {
     '/stop_pump \u{1F6B1} : to manually stop the pump';
 }
 
-const pumpStartedMsg = () => {
-	return 'The pump has been started! \u{1F6B0}';
+const pumpMsg = (event) => {
+    if (event == "start") {
+        return 'The pump has been started! \u{1F6B0}';
+    } else if (event == "stop"){
+        return 'The pump has been stopped! \u{1F6B1}';
+    } else {
+        return "error: event not recognized";
+    }
 }
 
-const pumpStoppedMsg = () => {
-	return 'The pump has been stopped! \u{1F6B1}';
+const pumpMsgLog = (event, user) => {
+    if (event == "start") {
+        return "alert start pump sent to " + user;
+    } else if (event == "stop") {
+        return "alert stop pump sent to " + user;
+    } else {
+        return "error: event not recognized";
+    }
 }
 
 // check if the lengh of an array is smaller than a number
@@ -42,4 +54,4 @@ const printData = (soil_moisture, brightness, temperature) => {
     return printMoisture(soil_moisture) + '\n' + printBrightness(brightness) + '\n' + printTemperature(temperature);
 }
 
-module.exports = {commandList, pumpStartedMsg, pumpStoppedMsg, checkLength, printMoisture, printBrightness, printTemperature, printData};
+module.exports = {commandList, pumpMsg, pumpMsgLog, checkLength, printMoisture, printBrightness, printTemperature, printData};

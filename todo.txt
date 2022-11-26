@@ -28,6 +28,7 @@ Low-level:
 High-level:
 -Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
 -funzione che elimina i N documents più vecchi da mettere nella gestione della httppost
--(IN PIU', DA FARE QUANDO RIUSCIAMO A COMUNICARE UART)inviare un messaggio a tutti gli utenti (che hanno avviato il bot) quando la pompa viene attivata e quando viene spenta 
+-inviare un messaggio a tutti gli utenti (che hanno avviato il bot) quando la pompa viene attivata e quando viene spenta 
     (anche nel caso in cui venga attivata tramite attivazione automatica dai sensori, non solo quando viene attivata manualmente da Telegram)
     => da inviare un segnale da msp a esp e poi inviare una post (boo è uguale) al server che manderà un messaggio a tutti gli user con ciclo (già implementato nell'altro bot)
+    AGGIORNAMENTO: il server e il bot sono a posto.. adesso bisgna fare lato microcontroller e mandare i messaggi http quando bisogna

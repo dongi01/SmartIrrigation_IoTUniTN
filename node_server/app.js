@@ -10,7 +10,7 @@ require('dotenv').config();
 // -------------------- bot commands --------------------
 
 servers.bot.start(async (context) => {
-    console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    console.log('Service started by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     
     // if a new user starts the bot, his data will be saved in the db
     let user = await usersAPI.searchUser(context.message.from.id);
@@ -33,7 +33,7 @@ servers.bot.command('get_last_moisture', async (context) => {
     if(user.realtime === false) {
         let data = await dataAPI.getLastData();
         context.reply(supportFunction.printMoisture(dataAPI.parseData(data).soil_moisture));
-        console.log('moisture sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        console.log('moisture sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
@@ -47,7 +47,7 @@ servers.bot.command('get_last_brightness', async (context) => {
     if(user.realtime === false){
         let data = await dataAPI.getLastData();
         context.reply(supportFunction.printBrightness(dataAPI.parseData(data).brightness));
-        console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
@@ -61,7 +61,7 @@ servers.bot.command('get_last_temperature', async (context) => {
     if(user.realtime === false){
         let data = await dataAPI.getLastData();
         context.reply(supportFunction.printTemperature(dataAPI.parseData(data).temperature));
-        console.log('temperature sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        console.log('temperature sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
@@ -79,7 +79,7 @@ servers.bot.command('get_last_data', async (context) => {
             dataAPI.parseData(data).brightness,
             dataAPI.parseData(data).temperature)
         );
-        console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
         context.reply('You are in realtime mode, please exit from it to use this command');
     }
@@ -115,7 +115,7 @@ servers.bot.command('get_realtime_data', async (context) => {
     } else {
         context.reply('you already started realime mode');
     }
-
+    console.log();
 })
 
 // it stops realtime mode of a single user
@@ -131,7 +131,8 @@ servers.bot.command('stop_realtime', async (context) => {
         await usersAPI.updateUser(context.message.from.id, {realtime: false});
     } else {
         context.reply('you haven\'t started realtime mode yet');
-    } 
+    }
+    console.log();
 })
 
 // print last value of moisture and brightness in the db
@@ -147,7 +148,7 @@ servers.bot.command('get_last_N_data', async (context) => {
             if (N === NaN) {
                 context.reply('You have to insert a number after the command');
             } else {
-                console.log(dataArrayDim + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+                console.log(dataArrayDim + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
 
                 if (!supportFunction.checkLength(dataArrayDim, N)) {
                     context.reply('There are only ' + dataArrayDim + ' documents');
@@ -169,7 +170,6 @@ servers.bot.command('get_last_N_data', async (context) => {
     } else {
         context.reply('Use \'command NumArgument\'');
     }
-
 })
 
 // set global variable to control whether or not the pump is running
@@ -182,8 +182,8 @@ servers.bot.command('/start_pump', async (context) => {
         context.reply('pump already started');
     } else {
         pump_started = true;
-        context.reply(supportFunction.pumpStartedMsg());
-        console.log('pump started by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        await alertStatePump("start");
+        console.log('pump started by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }
 })
 
@@ -192,8 +192,8 @@ servers.bot.command('/stop_pump', async (context) => {
 
     if (pump_started) {
         pump_started = false;
-        context.reply(supportFunction.pumpStoppedMsg());
-        console.log('pump stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+        await alertStatePump("stop");
+        console.log('pump stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     } else {
         context.reply('pump is not running');
     }
@@ -202,7 +202,7 @@ servers.bot.command('/stop_pump', async (context) => {
 // shows all commands available
 servers.bot.command('commands', async (context) => {
     context.reply(supportFunction.commandList());
-    console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    console.log('commands sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
 })
 
 // delete all sensors data from db
@@ -210,8 +210,25 @@ servers.bot.command('commands', async (context) => {
 servers.bot.command('delete_sensors_data', async (context) => {
     dataAPI.removeAllData();
     context.reply('All sensors data deleted');
-    console.log('sensors data deleted by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
+    console.log('sensors data deleted by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
 })
+
+// function that send alert mesages to all users that start the bot. If they close it, they will be removed from the db
+const alertStatePump = async (event) => {
+    let userslist = await usersAPI.allUser()
+    userslist.forEach( user => {
+        servers.bot.telegram.sendMessage(user.chat_id, supportFunction.pumpMsg(event))
+        // catches the error and make sure to delete the user only if the user has blocked the bot
+        .catch(error => {
+            if (error.response && error.response.error_code === 403) {
+                usersAPI.removeUser(user.chat_id);
+            } else {
+                console.log(error);
+            }
+        });
+        console.log(supportFunction.pumpMsgLog(event, user.first_name + ' ' + user.last_name));
+    });
+}
 
 // -------------------- http api --------------------
 
@@ -237,20 +254,26 @@ servers.app.post('/addSensorsData', (req, res) => {
     }
     
     res.send("post OK");
+    console.log("post response send\n");
 })
 
-// probably it will be removed and we will send http msg to ESP32 for notify the start of the pump
-// listens for get request and send whether or not the pump_started flag is true 
-servers.app.get('/getPumpState', (req, res) => {
+// mabye we can listen for a single get req and manage the start/stop cases with parameters
+// listens for messages that indicate the start of the pump
+servers.app.get('/alertStartPump', async (req, res) => {
     console.log('get request recived');
-    if (pump_started) {
-        // to see what to send...
-        res.send(1);
-    } else {
-        // to see what to send...
-        res.send(0);
-    }
-    console.log('get request send');
+    // function that sent to all user in the db a msg whitch say that the pump is running
+    await alertStatePump("start");
+    res.send("OK");
+    console.log('get response send\n');
+})
+
+// listens for messages that indicate the start of the pump
+servers.app.get('/alertStopPump', async (req, res) => {
+    console.log('get request recived');
+    // function that sent to all user in the db a msg whitch say that the pump is running
+    await alertStatePump("stop");
+    res.send("OK");
+    console.log('get response send\n');
 })
 
 // starts server
