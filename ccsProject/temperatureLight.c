@@ -128,8 +128,8 @@ void TA1_0_IRQHandler(){
     temp = (temp - 32.0) * ( 5.0 / 9.0 );
     
     //Setting a max value for comunication with 7 bits
-    if(temp > 127){
-        temp = 127;
+    if(temp > 63){
+        temp = 63;
     }
 
     //printf("%f\n",temp);
