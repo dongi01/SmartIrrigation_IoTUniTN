@@ -3,6 +3,7 @@ const dataAPI = require('./sensorsDataAPI.js');
 const servers = require('./servers');
 const usersAPI = require('./usersAPI');
 const supportFunction = require('./supportFunction');
+const axios = require('axios');
 
 //.env file
 require('dotenv').config();
@@ -181,9 +182,8 @@ servers.bot.command('/start_pump', async (context) => {
     if (pump_started) {
         context.reply('pump already started');
     } else {
-        pump_started = true;
-        await alertStatePump("start");
-        console.log('pump started by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
+        // send http message to esp32 to start pump
+        await sendStartPump(context.message.from.first_name, context.message.from.last_name);
     }
 })
 
@@ -191,9 +191,8 @@ servers.bot.command('/start_pump', async (context) => {
 servers.bot.command('/stop_pump', async (context) => {
 
     if (pump_started) {
-        pump_started = false;
-        await alertStatePump("stop");
-        console.log('pump stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
+        // send http message to esp32 to stop pump
+        await sendStopPump(context.message.from.first_name, context.message.from.last_name);
     } else {
         context.reply('pump is not running');
     }
@@ -212,6 +211,40 @@ servers.bot.command('delete_sensors_data', async (context) => {
     context.reply('All sensors data deleted');
     console.log('sensors data deleted by ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
 })
+
+// ------------------- functions -------------------
+
+const ESP32ServerAddress = 'http://192.168.150.69:8080';
+
+const sendStartPump = async (first_name, last_name) => {
+    await axios.get(ESP32ServerAddress + '/StartPump')
+    .then(async response => {
+        console.log('GET response status: ' + response.status);
+        if (response.status == 200) {
+            pump_started = true;
+            await alertStatePump("start");
+            console.log('pump started by ' + first_name + ' ' + last_name + '\n');
+        }
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+const sendStopPump = async (first_name, last_name) => {
+    await axios.get(ESP32ServerAddress + '/StopPump')
+    .then(async response => {
+        console.log('GET response status: ' + response.status);
+        if (response.status == 200) {
+            pump_started = false;
+            await alertStatePump("stop");
+            console.log('pump stopped by ' + first_name + ' ' + last_name + '\n');
+        }
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
 
 // function that send alert mesages to all users that start the bot. If they close it, they will be removed from the db
 const alertStatePump = async (event) => {
