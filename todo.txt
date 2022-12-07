@@ -14,10 +14,19 @@ Low-level:
     => Definire quantità acqua da dare con la pompa (da provare con un vaso)
 -Ottimizzare codice AL MASSIMO
 
+- unire tutto il codice delle due schedine
+
 High-level:
 -Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
--funzione che elimina i N documents più vecchi da mettere nella gestione della httppost
--inviare un messaggio a tutti gli utenti (che hanno avviato il bot) quando la pompa viene attivata e quando viene spenta 
-    (anche nel caso in cui venga attivata tramite attivazione automatica dai sensori, non solo quando viene attivata manualmente da Telegram)
-    => da inviare un segnale da msp a esp e poi inviare una post (boo è uguale) al server che manderà un messaggio a tutti gli user con ciclo (già implementato nell'altro bot)
-    AGGIORNAMENTO: il server e il bot sono a posto.. adesso bisgna fare lato microcontroller e mandare i messaggi http quando bisogna
+-funzione che elimina gli N documents più vecchi da mettere nella gestione della httppost
+-comunicazione stato pompa
+    AGGIORNAMENTO: dovrebbe essere quadi tutto a posto:
+        cose fatte e da testare:
+            - se da telegram accendo/spengo pompa, il server manda un messaggio all'esp23 che lo riceve e manda in seriale 255(1111 1111) o 0 (0000 0000) per indicare l'accaduto.
+            - se l'esp32 riceve 1 nel settimo bit meno significativo del dato della temperatura, allora significa che la pompa è stata accesa dall'esp (o automaticamente dalla lettura
+            dell'umidità della terra o manualmente dal menou) e quindi, SE PRECEDENTEMENTE LA POMPA ERA SPENTA, allora manda un messaggio al server avvertendo che la pompa è stata accesa. 
+            Uguale per quando la pompa viene spenta.
+            - quando il server riceve il messaggio che avverte che la pompa è stata accesa allora manda un messaggio a tutti gli utenti di telegram che hanno attivato il bot.
+        cose da fare:
+            - mettere l'msp in ascolto sulla seriale e ascoltare in particolare se arriva un 255(1111 1111) o uno 0 (0000 0000). A seconda attivare o spegnere la pompa
+            - settare il settimo bit meno significativo del byte della temperatura a 1 o 0 a a seconda dello stato della pompa: 1 -> attiva, 0 -> spenta.

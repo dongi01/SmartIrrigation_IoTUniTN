@@ -6,10 +6,10 @@
 
 WebServer server(8080);
 
-const int led = 13;
+const int LED = 13;
 
 void setup() {
-  pinMode(led, OUTPUT);
+  pinMode(LED, OUTPUT);
   Serial.begin(115200);
 
   WiFiManager wm;
@@ -47,21 +47,21 @@ void loop() {
 }
 
 void handleStart() {
-  digitalWrite(led, 1);
-  delay(2000);
+  digitalWrite(LED, HIGH);
   Serial.println("pompa accesa");
+  // send message via serial comunication
+  Serial.print(255) // 1111 1111
   server.send(200, "text/plain", "OK");
 }
 
 void handleStop() {
-  server.send(200, "text/plain", "OK");
-  delay(2000);
+  digitalWrite(LED, LOW);
   Serial.println("pompa spenta");
-  digitalWrite(led, 0);
+  // send message via serial comunication
+  Serial.println(0); // 0000 0000
+  server.send(200, "text/plain", "OK");
 }
 
 void handleNotFound() {
-  digitalWrite(led, 1);
   server.send(404, "text/plain", "ERROR: Not Found");
-  digitalWrite(led, 0);
 }
