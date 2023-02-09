@@ -36,7 +36,8 @@ servers.bot.command('get_last_moisture', async (context) => {
         context.reply(supportFunction.printMoisture(dataAPI.parseData(data).soil_moisture));
         console.log('moisture sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
-        context.reply('You are in realtime mode, please exit from it to use this command');
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to get_last_moisture while in realtime mode' + '\n');
+        context.reply('You are in realtime mode, please /stop_realtime to use this command');
     }
 })
 
@@ -50,7 +51,8 @@ servers.bot.command('get_last_brightness', async (context) => {
         context.reply(supportFunction.printBrightness(dataAPI.parseData(data).brightness));
         console.log('brightness sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
-        context.reply('You are in realtime mode, please exit from it to use this command');
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to get_last_brightness while in realtime mode' + '\n');
+        context.reply('You are in realtime mode, please /stop_realtime to use this command');
     }
 })
 
@@ -64,7 +66,8 @@ servers.bot.command('get_last_temperature', async (context) => {
         context.reply(supportFunction.printTemperature(dataAPI.parseData(data).temperature));
         console.log('temperature sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
-        context.reply('You are in realtime mode, please exit from it to use this command');
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to get_last_temperature while in realtime mode' + '\n');
+        context.reply('You are in realtime mode, please /stop_realtime to use this command');
     }
 })
 
@@ -82,7 +85,8 @@ servers.bot.command('get_last_data', async (context) => {
         );
         console.log('data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
     }else{
-        context.reply('You are in realtime mode, please exit from it to use this command');
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to get_last_data while in realtime mode' + '\n');
+        context.reply('You are in realtime mode, please /stop_realtime to use this command');
     }
 })
 
@@ -92,7 +96,7 @@ servers.bot.command('get_realtime_data', async (context) => {
     let user = await usersAPI.searchUser(context.message.from.id);
     if (user.realtime === false) {
         console.log('realtime mode activated by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
-        context.reply('realt time mdoe: started\u{1F7E2}');
+        context.reply('realt time mdoe: started \u{1F7E2}');
         context.reply('you will see data every ' + usersAPI.TIME_INTERVAL + ' seconds');
 
         user_interval = setInterval( async () => {
@@ -109,11 +113,12 @@ servers.bot.command('get_realtime_data', async (context) => {
 				} else {
 					console.log(error);
 				}
-			});;
+			});
         }, 1000*usersAPI.TIME_INTERVAL);
 
         await usersAPI.updateUser(context.message.from.id, {realtime: true , interval: Number(user_interval) });
     } else {
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to start realtime while already started');
         context.reply('you already started realime mode');
     }
     console.log();
@@ -127,10 +132,11 @@ servers.bot.command('stop_realtime', async (context) => {
         clearInterval(user.interval);
 
         console.log('realtime mode stopped by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
-        context.reply('real time mode: stopped\u{1F534}');
+        context.reply('real time mode: stopped \u{1F534}');
     
         await usersAPI.updateUser(context.message.from.id, {realtime: false});
     } else {
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to stop realtime while wans\'t running');
         context.reply('you haven\'t started realtime mode yet');
     }
     console.log();
@@ -148,6 +154,7 @@ servers.bot.command('get_last_N_data', async (context) => {
             dataArrayDim = dataArray.length;
             if (N === NaN) {
                 context.reply('You have to insert a number after the command');
+                console.log(context.message.from.first_name + ' ' + context.message.from.last_name + 'does not insert number after command\n');
             } else {
                 console.log(dataArrayDim + ' data sent to ' + context.message.from.first_name + ' ' + context.message.from.last_name + '\n');
 
@@ -166,9 +173,11 @@ servers.bot.command('get_last_N_data', async (context) => {
                 });
             }
         } else {
+            console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' used wrong paramether in get_last_N_data\n');
             context.reply('Use only one number paramether after the command');
         }
     } else {
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' used invalid command form in get_last_N_data\n');
         context.reply('Use \'command NumArgument\'');
     }
 })
@@ -177,9 +186,10 @@ servers.bot.command('get_last_N_data', async (context) => {
 // this varible will be usefull for httpGET from the ESP01 module
 var pump_started = false;
 // set 'pump_started' to true to flag that a user what to start the pump
-servers.bot.command('/start_pump', async (context) => {
+servers.bot.command('start_pump', async (context) => {
 
     if (pump_started) {
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to start pump while pump already started\n');
         context.reply('pump already started');
     } else {
         // send http message to esp32 to start pump
@@ -188,12 +198,13 @@ servers.bot.command('/start_pump', async (context) => {
 })
 
 // set 'pump_started' to false to flag that a user what to stop the pump
-servers.bot.command('/stop_pump', async (context) => {
+servers.bot.command('stop_pump', async (context) => {
 
     if (pump_started) {
         // send http message to esp32 to stop pump
         await sendStopPump(context.message.from.first_name, context.message.from.last_name);
     } else {
+        console.log(context.message.from.first_name + ' ' + context.message.from.last_name + ' tryed to stop pump while pump wasn\'t working\n');
         context.reply('pump is not running');
     }
 })
@@ -214,7 +225,7 @@ servers.bot.command('delete_sensors_data', async (context) => {
 
 // ------------------- functions -------------------
 
-const ESP32ServerAddress = 'http://192.168.150.69:8080';
+const ESP32ServerAddress = 'http://192.168.29.69:8080';
 
 const sendStartPump = async (first_name, last_name) => {
     await axios.get(ESP32ServerAddress + '/StartPump')
