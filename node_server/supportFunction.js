@@ -5,7 +5,7 @@ const commandList = () => {
     '/get_last_brightness \u{2600} : for the last enviromental brightness value recived\n' + 
     '/get_last_temperature \u{1F321} : for the last temperature value recived\n' + 
     '/get_last_data \u{1F4CB} : for last data recived\n' + 
-    '/get_last_N_data N \u{1F4D1} : for the last N data (if possible)\n' +
+    '/get_last_n_data N \u{1F4D1} : for the last n data (if possible)\n' +
     '/get_realtime_data \u{1F7E2} : to enter in realtime mode and see real time data\n' + 
     '/stop_realtime \u{1F534} : to exit realtime mode\n' + 
     '/start_pump \u{1F6B0} : to manually star the pump\n' +

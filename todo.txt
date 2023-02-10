@@ -1,8 +1,5 @@
 Add README
 
-Implementare socket
-
-Rendere sensori e pompa wireless *se lo facciamo ci sbora addosso*
 
 Low-level:
 -Sensore umidità
@@ -17,14 +14,13 @@ Low-level:
 - unire tutto il codice delle due schedine
 
 High-level:
--Aggiungere comandi al botfather (non mettere 'delete_sensors_data')
 -funzione che elimina gli N documents più vecchi da mettere nella gestione della httppost
 -comunicazione stato pompa
-    AGGIORNAMENTO: dovrebbe essere quadi tutto a posto:
+    AGGIORNAMENTO: dovrebbe essere quasi tutto a posto:
         cose fatte e da testare:
             - se da telegram accendo/spengo pompa, il server manda un messaggio all'esp23 che lo riceve e manda in seriale 255(1111 1111) o 0 (0000 0000) per indicare l'accaduto.
             - se l'esp32 riceve 1 nel settimo bit meno significativo del dato della temperatura, allora significa che la pompa è stata accesa dall'esp (o automaticamente dalla lettura
-            dell'umidità della terra o manualmente dal menou) e quindi, SE PRECEDENTEMENTE LA POMPA ERA SPENTA, allora manda un messaggio al server avvertendo che la pompa è stata accesa. 
+            dell'umidità della terra o manualmente dal menou) e quindi, SE PRECEDENTEMENTE LA POMPA ERA SPENTA, manda un messaggio al server avvertendo che la pompa è stata accesa. 
             Uguale per quando la pompa viene spenta.
             - quando il server riceve il messaggio che avverte che la pompa è stata accesa allora manda un messaggio a tutti gli utenti di telegram che hanno attivato il bot.
         cose da fare:

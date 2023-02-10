@@ -143,10 +143,10 @@ servers.bot.command('stop_realtime', async (context) => {
 })
 
 // print last value of moisture and brightness in the db
-servers.bot.command('get_last_N_data', async (context) => {
+servers.bot.command('get_last_n_data', async (context) => {
 
     msg = context.message.text;
-    if(msg != "/get_last_N_data") {
+    if(msg != "/get_last_n_data") {
         msgArray = msg.split(' ');
         if (msgArray.length === 2) {
             N = Number(msgArray[1]);
@@ -225,7 +225,7 @@ servers.bot.command('delete_sensors_data', async (context) => {
 
 // ------------------- functions -------------------
 
-const ESP32ServerAddress = 'http://192.168.29.69:8080';
+const ESP32ServerAddress = 'http://esp32.local:8080';
 
 const sendStartPump = async (first_name, last_name) => {
     await axios.get(ESP32ServerAddress + '/StartPump')
@@ -298,7 +298,7 @@ servers.app.post('/addSensorsData', (req, res) => {
     }
     
     res.send("post OK");
-    console.log("post response send\n");
+    console.log("post response sent\n");
 })
 
 // mabye we can listen for a single get req and manage the start/stop cases with parameters
@@ -309,7 +309,7 @@ servers.app.get('/alertStartPump', async (req, res) => {
     // function that sent to all user in the db a msg whitch say that the pump is running
     await alertStatePump("start");
     res.send("OK");
-    console.log('get response send\n');
+    console.log('get response sent\n');
 })
 
 // listens for messages that indicate the start of the pump
@@ -319,7 +319,7 @@ servers.app.get('/alertStopPump', async (req, res) => {
     // function that sent to all user in the db a msg whitch say that the pump is running
     await alertStatePump("stop");
     res.send("OK");
-    console.log('get response send\n');
+    console.log('get response sent\n');
 })
 
 // starts server
