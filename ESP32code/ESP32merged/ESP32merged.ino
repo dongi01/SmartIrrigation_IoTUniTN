@@ -6,6 +6,9 @@
 
 #include <string.h>
 
+// max value for unsigned long
+#define ULONG_MAX 18446744073709551615
+
 // defining serial comunication and led pins
 #define RXD2 16
 #define TXD2 17
@@ -51,7 +54,7 @@ void setup() {
 
   if (!res) {
     Serial.println("Failed to connect");
-    // ESP.restart();
+    ESP.restart();
   } else {
     Serial.println("connected");
   }
@@ -73,87 +76,103 @@ void setup() {
 
 
 // 5 seconds delay
-unsigned long timerDelay = 5000;
+unsigned long timerDelay = 15000;
 unsigned long lastTime = 0;
 
 void loop() {
 
-  // In this way we can create different timer but millis() will overflow afret aprox. 49 days
-  // An idea is to separate the reading phase and the sending phase with 2 different timer: don't know if it is a good idea, mabye it's useless.
-  // It's better to implement a way to manage the overflow (for example control if lastTime is bigger than millis() then use the unsigned long MAX value to calculate delay)
-  if ((millis() - lastTime) > timerDelay){
-  
-    // reading data from UART
-    while (Serial2.available() > 0) {
-      
-      //Wait byte with control bit = 1
-      tmp = Serial2.read();
-      while(!(tmp >> 7 == 1)){
-        tmp = Serial2.read();
-      }
-  
-      //Saving ordered data
-      RXMoisture = tmp;
-      RXLight = Serial2.read();
-      RXTemp = Serial2.read();
+  // read every [timeDelay] seconds
+  // this if condition to manage the overflow of millins() after reaching ULONG_MAX(49 day approx.)
+  if(millis() > lastTime){
+    if ((millis() - lastTime) > timerDelay){
+      readManageData();
+      lastTime = millis();
     }
-
-    /*
-    RX data schema
-    
-    They are all uint8_t and data has been divived as follow:
-    - c is the control bit -> used to know the first byte of the expected 3. RXMoisture::c = 1
-    - w are the bits that bring moisture data
-    - x are the bits that bring light data
-    - y is the bit that brings information about the state of the pump
-    - z are the bits that bring temperature data
-    
-    RXMoisture  c w w w  w w w w
-    
-    
-    RXLight     c x x x  x x x x
-    
-    
-    RXTemp      c y z z  z z z z
-    
-    */
-
-
-    //unsetting control bit -> returning to percentage
-    dataMoisture = unSetControlBit(RXMoisture);
-    //decompressing data
-    dataLight = sevenBitsToRange(RXLight, 0, 20000);
-    dataTMP = dataTemp;
-    // 1 or 0 to indicate whether or not the pump is activated
-    dataPump = dataTMP >> 6;
-  
-    // send msg to node server only if the state of pump is changed
-    if (dataPump != oldDataPump) {
-      // send message to server
-      if (dataPump == 1) {
-        sendStartPump();
-      } else if (dataPump == 0) {
-        sendStopPump();
-      } else {
-        // error
-      }
-      oldDataPump = dataPump;
+  } else { // when millis() overflow
+      if ((millis() + (ULONG_MAX - lastTime)) > timerDelay){
+      readManageData();
+      lastTime = millis();
     }
-  
-    // send data to server
-    sendData();
-    /*
-    //debugging print
-    Serial.println(dataMoisture);
-    Serial.println(dataLight);
-    Serial.println(dataTemp);
-    Serial.println("");
-    */
-    lastTime = millis();
   }
 
   // handle client
   server.handleClient();
+}
+
+// reading and managing data code
+void readManageData() {
+  // reading data from UART
+  while (Serial2.available() > 0) {
+    
+    //Wait byte with control bit = 1
+    tmp = Serial2.read();
+    while(!(tmp >> 7 == 1)){
+      tmp = Serial2.read();
+    }
+
+    //Saving ordered data
+    RXMoisture = tmp;
+    RXLight = Serial2.read();
+    RXTemp = Serial2.read();
+  }
+
+  /*
+  RX data schema
+  
+  They are all uint8_t and data has been divived as follow:
+  - c is the control bit -> used to know the first byte of the expected 3. RXMoisture::c = 1
+  - w are the bits that bring moisture data
+  - x are the bits that bring light data
+  - y is the bit that brings information about the state of the pump
+  - z are the bits that bring temperature data
+  
+  RXMoisture  c w w w  w w w w
+  
+  
+  RXLight     c x x x  x x x x
+  
+  
+  RXTemp      c y z z  z z z z
+  
+  */
+
+
+  //unsetting control bit -> returning to percentage
+  dataMoisture = unSetControlBit(RXMoisture);
+  //decompressing data
+  dataLight = sevenBitsToRange(RXLight, 0, 20000);
+  //dataLight = RXLight;
+  dataTMP = RXTemp;
+  // 1 or 0 to indicate whether or not the pump is activated
+  dataPump = dataTMP >> 6;
+  // cleaning 7th bit to obtain 6 bit of temperature
+  //dataTemp = RXTemp << 2;
+  //dataTemp = dataTemp >> 2;
+  dataTemp = RXTemp;
+
+  // send msg to node server only if the state of pump is changed
+  if (dataPump != oldDataPump) {
+    // send message to server
+    if (dataPump == 1) {
+      sendStartPump();
+    } else if (dataPump == 0) {
+      sendStopPump();
+    } else {
+      // error
+    }
+    oldDataPump = dataPump;
+  }
+
+  // send data to server
+  sendData();
+
+  //debugging print
+  Serial.println(dataMoisture);
+  Serial.println(dataLight);
+  Serial.println(dataTemp);
+  Serial.println(dataPump);
+  
+  Serial.println("");
 }
 
 // HTTP request handlers
@@ -163,8 +182,8 @@ void handleStart() {
   digitalWrite(LED, LOW);
   Serial.println("pump started");
   // send message via serial comunication
-  Serial2.print(255); // 1111 1111
-  Serial.println(255); // debug
+  Serial2.write(240); // value to indicate to start pump
+  Serial.println(240); // debug
   server.send(200, "text/plain", "OK");
 }
 
@@ -174,8 +193,8 @@ void handleStop() {
   digitalWrite(LED, LOW);
   Serial.println("pump stopped");
   // send message via serial comunication
-  Serial2.print(0); // 0000 0000
-  Serial.println(0); // debug
+  Serial2.write(10); // value to indicate to stop pump
+  Serial.println(10); // debug
   server.send(200, "text/plain", "OK");
 }
 
