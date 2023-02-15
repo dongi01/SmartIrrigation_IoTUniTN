@@ -18,14 +18,14 @@ void ledPortsInit(){
 
 //Turn on boosterpack's leds
 void redOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN6);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN6);
 }
 
 void blueOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P5, GPIO_PIN6);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P5, GPIO_PIN6);
 
 }
 
 void greenOn(){
-    GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN4);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN4);
 }

@@ -9,9 +9,9 @@
 const eUSCI_UART_ConfigV1 uartConfig =
 {
         EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-        13,                                      // BRDIV = 13
+        26,//13,                                      // BRDIV = 13
         0,                                       // UCxBRF = 0
-        37,                                      // UCxBRS = 37
+        111,//37,                                      // UCxBRS = 37
         EUSCI_A_UART_NO_PARITY,                  // No Parity
         EUSCI_A_UART_LSB_FIRST,                  // LSB First
         EUSCI_A_UART_ONE_STOP_BIT,               // One stop bit
@@ -24,7 +24,7 @@ const eUSCI_UART_ConfigV1 uartConfig =
 const Timer_A_UpModeConfig upConfig =
 {
         TIMER_A_CLOCKSOURCE_ACLK,              // SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_1,         // 32 KHz / 10 = 3.2 KHz / 32 000 = 10 sec
+        TIMER_A_CLOCKSOURCE_DIVIDER_5,         // 32 KHz / 10 = 3.2 KHz / 32 000 = 10 sec
         TIMER_PERIOD,                           // every half second
         TIMER_A_TAIE_INTERRUPT_DISABLE,         // Disable Timer interrupt
         TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,     // Enable CCR0 interrupt
@@ -83,10 +83,13 @@ void mapAndSendData(float temp, int lux, float moistureAdcValue){
     //Setting control bit at 1 of first byte
     TXMoisture = setControlBit(TXMoisture);
 
+    printf("Moisture: %f ",moistureAdcValue);
     printf("TXMoisture: %d\n",TXMoisture-128);
+    printf("Light: %d ",lux);
     printf("TXLight: %d\n",TXLight);
+    printf("Temp: %f ",temp);
     printf("TXTemp: %d\n",TXTemp);
-    printf("\n");
+    printf("***\n");
 
     //Transmit all data
     UART_transmitData(EUSCI_A2_BASE, TXMoisture);
@@ -95,27 +98,21 @@ void mapAndSendData(float temp, int lux, float moistureAdcValue){
 }
 
 void uartInit(){
-    // /* Selecting P1.2 and P1.3 in UART mode and P1.0 as output (LED) */
-    // GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
-    //          GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
-    // GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
-    // GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN1);
-    // GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN2);
 
-    // GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN0);
-    // GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN1);
-    // GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN2);
+    // /* Selecting P1.2 and P1.3 in UART mode*/
+    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
+             GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 
-    // /* Configuring UART Module */
-    // UART_initModule(EUSCI_A2_BASE, &uartConfig);
+    /* Configuring UART Module */
+    UART_initModule(EUSCI_A2_BASE, &uartConfig);
 
-    // /* Enable UART module */
-    // UART_enableModule(EUSCI_A2_BASE);
+    /* Enable UART module */
+    UART_enableModule(EUSCI_A2_BASE);
 
-    // /* Enabling interrupts */
-    // UART_enableInterrupt(EUSCI_A2_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
-    // Interrupt_enableInterrupt(INT_EUSCIA2);
-    // Interrupt_enableSleepOnIsrExit();
+    /* Enabling interrupts */
+    UART_enableInterrupt(EUSCI_A2_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
+    Interrupt_enableInterrupt(INT_EUSCIA2);
+    Interrupt_enableSleepOnIsrExit();
 
     configureTimer();
 }

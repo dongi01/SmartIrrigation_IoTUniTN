@@ -61,23 +61,23 @@ void _hwInit(){
     Interrupt_disableMaster();
 
     /* Set the core voltage level to VCORE1 */
-    // PCM_setCoreVoltageLevel(PCM_VCORE1);
+     PCM_setCoreVoltageLevel(PCM_VCORE1);
 
-    // /* Set 2 flash wait states for Flash bank 0 and 1*/
-    // FlashCtl_setWaitState(FLASH_BANK0, 2);
-    // FlashCtl_setWaitState(FLASH_BANK1, 2);
+     /* Set 2 flash wait states for Flash bank 0 and 1*/
+     FlashCtl_setWaitState(FLASH_BANK0, 2);
+     FlashCtl_setWaitState(FLASH_BANK1, 2);
 
-    // /* Initializes Clock System */
-    // CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-    // CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    // CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    // CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    // CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+     /* Initializes Clock System */
+     CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+     CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+     CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+     CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
-    FlashCtl_setWaitState(FLASH_BANK0, 1);
-    FlashCtl_setWaitState(FLASH_BANK1, 1);
-    PCM_setCoreVoltageLevel(PCM_VCORE1);
-    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
+//    FlashCtl_setWaitState(FLASH_BANK0, 1);
+//    FlashCtl_setWaitState(FLASH_BANK1, 1);
+//    PCM_setCoreVoltageLevel(PCM_VCORE1);
+//    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
     graphicsInit();
     portInit();
@@ -227,4 +227,30 @@ void ADC14_IRQHandler(void){
     }
 
     ADC14_toggleConversionTrigger(); //toggle another conversion
+}
+
+/* EUSCI A0 UART ISR - Echos data back to PC host */
+void EUSCIA2_IRQHandler(void)
+{
+    uint32_t status = UART_getEnabledInterruptStatus(EUSCI_A2_BASE);
+
+    if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
+    {
+        RXData = UART_receiveData(EUSCI_A2_BASE);
+
+        printf("RXData: %d\n",RXData);
+
+        if(RXData == 240){
+            redOn();
+        }else if(RXData == 10){
+            greenOn();
+        }else{
+            blueOn();
+        }
+
+        int i=0;
+        for(i=0; i<100000; i++);
+
+        Interrupt_disableSleepOnIsrExit();
+    }
 }
