@@ -14,11 +14,18 @@ const DataSchema = new mongoose.Schema({
 const DataModel = mongoose.model(DATABASE, DataSchema);
 
 
+// functio that count documents in collection 
+const countData = async () => {
+    return await DataModel.countDocuments();
+}
+
+
 // function that adds data to the database
 const insertData = async (dataObj) => {
 	await DataModel.create(dataObj, () => {
         console.log("Data added:");
         console.log(dataObj);
+        console.log("\n");
     });
 }
 
@@ -33,7 +40,15 @@ const removeAllData = () => {
         }); */
         console.log("all data removed");
     });
-} 
+}
+
+// function that delete the oldest N documents in the database
+const removeOldestNData = async (N) => {
+    const firtNObj = await DataModel.find().sort({_id: 1}).limit(N+1);
+    DataModel.deleteMany({_id:{"$lt": firtNObj[N]._id }}, () => {
+        console.log("oldest " + N + " objects have been removed");
+    });
+}
 
 // function that returns the last data obj saved in the db
 const getLastData = async () => {
@@ -43,8 +58,8 @@ const getLastData = async () => {
 
 // function that returns a list of the last data obj saved in the db
 const getLastNData = async (N) => {
-    const singleListObj = await DataModel.find().sort({_id:-1}).limit(N);
-    return singleListObj;
+    const firtNObj = await DataModel.find().sort({_id:-1}).limit(N);
+    return firtNObj;
 }
 
 // return parse data
@@ -57,4 +72,4 @@ const parseData = (dataObj) => {
 }
 
 
-module.exports = {insertData, removeAllData, getLastData, getLastNData, parseData}
+module.exports = {countData, insertData, removeAllData, removeOldestNData, getLastData, getLastNData, parseData}

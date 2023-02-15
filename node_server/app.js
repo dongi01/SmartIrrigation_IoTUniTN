@@ -276,25 +276,32 @@ const alertStatePump = async (event) => {
 
 // -------------------- http api --------------------
 
-// post request counter
-var postCounter = 0;
-var postDBCounter = 0;
+// number of documents in database
+var documentsCounter = 0;
+const maxCapacity = 70;
+const toRemove = 20;
 // listens for new sensor data and inserts them in the db
-servers.app.post('/addSensorsData', (req, res) => {
-    postCounter++;
-    postDBCounter++;
+servers.app.post('/addSensorsData', async (req, res) => {
+
+    // match the counter with the number of objects in database
+    if (documentsCounter === 0) {
+        documentsCounter = await dataAPI.countData();        
+    }
+
     let data = req.body;
     console.log('data recived from post api:');
     console.log(data);
-    // insert data in db every 10 post recived
-    if (postDBCounter === 1) {
-        dataAPI.insertData(data);
-        postDBCounter = 0;
-    }
-    if (postCounter === 200) {
-        // delete first 100
-        // ++ to do ++ create the function in sensorsDataAPI
-        postCounter = 100;
+
+    //insert data in database
+    documentsCounter++;
+    dataAPI.insertData(data);
+    console.log("number of objects in database now: " + documentsCounter + "\n");
+    
+    // if we have [maxCapacity] documents in database, remove the [toRemove] oldest data
+    if (documentsCounter === maxCapacity) {
+        // delete the [toRemove] oldest data
+        dataAPI.removeOldestNData(toRemove);
+        documentsCounter = maxCapacity-toRemove;
     }
     
     res.send("post OK");
