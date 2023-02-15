@@ -13,6 +13,9 @@ int SevenBitsToRange(uint8_t value, int minF, int maxF);
 uint8_t RangeTo7bits(int value, int minI, int maxI);
 uint8_t setControlBit(uint8_t firstData);
 uint8_t mapToPercentage(int value, int minI, int maxI);
+uint8_t addPumpBit(uint8_t temp);
+uint8_t bounds(uint8_t lower_b, uint8_t upper_b, uint8_t data);
+
 
 int main(){
 
@@ -209,8 +212,23 @@ uint8_t setControlBit(uint8_t firstData){
 }
 
 uint8_t mapToPercentage(int value, int minI, int maxI){
-    uint8_t returnValue = 0.0 + (100.0 / (maxI - minI)) * (value - minI);;
+    uint8_t returnValue = 0.0 + (100.0 / (maxI - minI)) * (value - minI);
     return returnValue;
 }
+
+uint8_t addPumpBit(uint8_t temp){
+    return 64 + temp;
+}
+
+uint8_t bounds(uint8_t lower_b, uint8_t upper_b, uint8_t data){
+    if (data > upper_b) {
+        return upper_b;
+    } else if (data < lower_b) {
+        return lower_b;
+    } else {
+        return data;
+    }
+}
+
 // general formula for mapping value in different ranges
 // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start);

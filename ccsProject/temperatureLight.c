@@ -126,6 +126,11 @@ void TA1_0_IRQHandler(){
 
     //Temp in celsius
     temp = (temp - 32.0) * ( 5.0 / 9.0 );
+    
+    //Setting a max value for comunication with 7 bits
+    if(temp > 63){
+        temp = 63;
+    }
 
     //printf("%f\n",temp);
     //printf("%i\n",lux);

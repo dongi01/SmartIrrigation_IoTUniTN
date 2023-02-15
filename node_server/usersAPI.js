@@ -30,6 +30,11 @@ const searchUser = async (chatID) => {
     return await UserModel.findOne({ chat_id: chatID }).exec();
 }
 
+// function that returns the list of all users in the db
+const allUser = async () => {
+    return await UserModel.find();
+}
+
 // function that delete a user from the collection
 const removeUser = (chatID) => {
     UserModel.deleteOne({chat_id: chatID }, () => {
@@ -45,4 +50,4 @@ const updateUser = async (chatID, updatedValues) => {
 }
 
 
-module.exports = {TIME_INTERVAL, insertUser, searchUser, removeUser, updateUser}
+module.exports = {TIME_INTERVAL, insertUser, searchUser, allUser, removeUser, updateUser}

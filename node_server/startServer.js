@@ -5,11 +5,11 @@ const servers = require('./servers');
 
 // function that starts the express app and telegram bot
 startServer = async () => {
-    await servers.bot.launch()
+    await servers.bot.launch();
 	console.log("telegram bot started");
 
     servers.app.listen(3000, () => {
-        console.log("listening on port 3000");
+        console.log("listening on port 3000\n");
     });
 }
 

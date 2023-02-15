@@ -30,9 +30,7 @@
 
 #define TIMER_PERIOD 0x8000 // = 32000
 
-uint8_t TXData = 49;
 uint8_t RXData = 0;
-int tmp = 0;
 
 /* UART Configuration Parameter. These are the configuration parameters to
  * make the eUSCI A UART module to operate with a 115200 baud rate. These
@@ -81,6 +79,29 @@ void configureTimer(){
     Interrupt_enableMaster();
 }
 
+// maps the input value in a smaller range (sender side)
+uint8_t rangeTo7bits(int value, int minI, int maxI) {  // I for initial, F for final
+
+    uint8_t returnValue;
+
+    if(value < 128){
+        returnValue = value;
+    }else{
+        returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
+    }
+    return returnValue;
+}
+
+uint8_t mapToPercentage(int value, int minI, int maxI){
+    return (value - minI) * 100 / (maxI - minI);
+
+    //return 0.0 + (100.0 / (maxI - minI)) * (value - minI);
+}
+
+uint8_t setControlBit(uint8_t firstData){
+    return 128 + firstData;
+}
+
 int main(void)
 {
     /* Halting WDT  */
@@ -116,10 +137,7 @@ int main(void)
 
     configureTimer();
 
-    while(1)
-    {
-        //UART_transmitData(EUSCI_A2_BASE, TXData);
-
+    while(1){
         Interrupt_enableSleepOnIsrExit();
         PCM_gotoLPM0InterruptSafe();
     }
@@ -134,7 +152,7 @@ void EUSCIA2_IRQHandler(void)
     {
         RXData = UART_receiveData(EUSCI_A2_BASE);
 
-        printf("%d\n",RXData);
+        printf("RXData: %d\n",RXData);
 
         if(RXData == 5){
             GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);//red
@@ -151,15 +169,56 @@ void EUSCIA2_IRQHandler(void)
     }
 }
 
-bool temp = true;
+/*DEBUGGING*/
+// checks if the input number has the right dimention
+//bool checkDimension(uint8_t bitDimension, uint8_t variable) {
+//    variable = variable >> bitDimension;
+//    return (variable == 0) ? true : false;
+//}
 
-//will be called when TA0CCR0 CCIFG is set
+// maps the input value in a larger range (reciver side)
+int sevenBitsToRange(uint8_t value, int minF, int maxF) {
+    int returnValue = minF + value * (maxF - minF) / 127; // 127 max value for 7 bits
+    return returnValue;
+}
+/**********/
+
+//Will be called when TA0CCR0 CCIFG is set
 void TA1_0_IRQHandler(){
 
-    //clear interrupt flag
+    //Clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
 
-    UART_transmitData(EUSCI_A2_BASE, 254);
-    UART_transmitData(EUSCI_A2_BASE, 39);
-    UART_transmitData(EUSCI_A2_BASE, 29);
+    int dataMoisture = 15000;
+    int dataLight = 13000;
+    int dataTemp = 29;
+
+    //Mapping on 7 bits
+    uint_fast8_t TXMoisture = mapToPercentage(dataMoisture, 14000, 16384); //16384 max value of ADC
+    uint_fast8_t TXLight = rangeTo7bits(dataLight, 0, 20000); //need to set max value of light
+    uint_fast8_t TXTemp = rangeTo7bits(dataTemp, 0, 127); //max temp is set to 127
+
+    //Setting control bit at 1 of first byte
+    TXMoisture = setControlBit(TXMoisture);
+
+    printf("TXMoisture: %d\n",TXMoisture-128);
+    printf("TXLight: %d\n",TXLight);
+    printf("TXTemp: %d\n",TXTemp);
+    printf("\n");
+
+    /*DEBUGGING*/
+//    dataMoisture = sevenBitsToRange(TXMoisture-128, 14000, 16000);
+//    dataLight = sevenBitsToRange(TXLight, 0, 20000);
+//    dataTemp = sevenBitsToRange(TXTemp, 0, 127);
+//
+//    printf("dataMoisture: %d\n",dataMoisture);
+//    printf("dataLight: %d\n",dataLight);
+//    printf("dataTemp: %d\n",dataTemp);
+//    printf("\n");
+    /**********/
+
+    //Transmit all data
+    UART_transmitData(EUSCI_A2_BASE, TXMoisture);
+    UART_transmitData(EUSCI_A2_BASE, TXLight);
+    UART_transmitData(EUSCI_A2_BASE, TXTemp);
 }
