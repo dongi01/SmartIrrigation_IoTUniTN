@@ -9,9 +9,14 @@
 #include "LcdDriver/HAL_MSP_EXP432P401R_Crystalfontz128x128_ST7735.h"
 #include "HAL_I2C.h"
 #include "HAL_TMP006.h"
+#include "HAL_OPT3001.h"
+#include "image.c"
 #include "screen.c"
 #include "pump.c"
 #include "button.c"
+#include "uart.c"
+#include "sensors.c"
+
 
 //#define NUM_OPT 4 //number of options for menu
 #define TIMER_PERIOD 0x8000 // = 32768, one sec timer
@@ -23,97 +28,20 @@ static volatile uint16_t curADCResult;
 
 //Variable for storing temperature value returned from TMP006
 float temp;
+//Variable for storing light value returned from OPT3001
+int lux;
+//Variable for storing moisturePercetage taken from adc convertion
+int moisturePercentage;
 
-//Timer_A UpMode Configuration Parameter
-const Timer_A_UpModeConfig upConfig ={
-    TIMER_A_CLOCKSOURCE_ACLK,               //ACLK Clock Source
-    TIMER_A_CLOCKSOURCE_DIVIDER_1,          //32 KHz / 1 = 32 KHz / 32 768 = 1
-    TIMER_PERIOD,                           //Every second
-    TIMER_A_TAIE_INTERRUPT_DISABLE,         //Disable Timer interrupt
-    TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,     //Enable CCR0 interrupt
-    TIMER_A_DO_CLEAR                        //Clear value
-};
+//Boolean to keep refreshing data in sensors data mode
+bool showMode = false;
 
-void configureTimerOneSec(){
-
-    //Configure Timer_A1 for up mode
-    Timer_A_configureUpMode(TIMER_A1_BASE, &upConfig);
-
-    //Enable sleep mode after ISR
-    Interrupt_enableSleepOnIsrExit();
-    //Enable interrupts
-    Interrupt_enableInterrupt(INT_TA1_0);
-    //Start timer in up mode
-    Timer_A_startCounter(TIMER_A1_BASE, TIMER_A_UP_MODE);
-
-    //Enable MASTER interrupts
-    Interrupt_enableMaster();
-}
-
-void adcInit(){
-
-    /* Configuring GPIOs (5.5 A0) */
-    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);
-
-    /* Configures Pin 6.0 and 4.4 as ADC input */
-    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P6, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);
-    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);
-
-    /* Enable ADC block*/
-    ADC14_enableModule();
-
-    //![Single Sample Mode Configure]
-    /* Initializing ADC (MCLK/1/4) */
-   // ADC14_initModule(ADC_CLOCKSOURCE_MCLK, ADC_PREDIVIDER_1, ADC_DIVIDER_1, 0);
-
-    //controller file clock
-    ADC14_initModule(ADC_CLOCKSOURCE_ADCOSC, ADC_PREDIVIDER_64, ADC_DIVIDER_8, 0);
-
-    /* Configuring ADC Memory */
-    //ADC14_configureSingleSampleMode(ADC_MEM0, true);
-
-    //nuovo incollato
-    ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM1, true);
+//boolean to not refresh menu if we are in the submenu
+bool inSubMenu = false;
 
 
-    ADC14_configureConversionMemory(ADC_MEM0, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, false);
-    ADC14_configureConversionMemory(ADC_MEM1, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A9, ADC_NONDIFFERENTIAL_INPUTS);
-
-    /* Configuring Sample Timer */
-    ADC14_enableSampleTimer(ADC_MANUAL_ITERATION);
-
-    /* Enabling/Toggling Conversion */
-    ADC14_enableConversion();
-    //ADC14_toggleConversionTrigger();
-
-    /* Enabling interrupts */
-    ADC14_enableInterrupt(ADC_INT0);
-    ADC14_enableInterrupt(ADC_INT1);
-
-    Interrupt_enableInterrupt(INT_ADC14);
-    Interrupt_enableMaster();
-
-    ADC14_toggleConversionTrigger();
-}
-
-//Mapping moisture value
-float map(uint16_t AdcValue){
-
-    const float airValue = 14200.0;
-    const float waterValue = 16000.0;
-    float percentage = 0.0;
-
-    //valid AdcValue between 14200 and 16000
-    if(AdcValue > airValue){
-        percentage = ((100.0) / (waterValue - airValue)) * ((float)AdcValue - airValue);
-        printf("Wet\n");
-    }
-
-    return percentage;
-}
-
-
-
+//Variable to store the received uart value
+uint8_t RXData = 0;
 
 void portInit(){
 
@@ -132,25 +60,33 @@ void _hwInit(){
     WDT_A_holdTimer();
     Interrupt_disableMaster();
 
-    //Set the core voltage level to VCORE1
+    /* Set the core voltage level to VCORE1 */
+    // PCM_setCoreVoltageLevel(PCM_VCORE1);
+
+    // /* Set 2 flash wait states for Flash bank 0 and 1*/
+    // FlashCtl_setWaitState(FLASH_BANK0, 2);
+    // FlashCtl_setWaitState(FLASH_BANK1, 2);
+
+    // /* Initializes Clock System */
+    // CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    // CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    // CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    // CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    // CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+
+    FlashCtl_setWaitState(FLASH_BANK0, 1);
+    FlashCtl_setWaitState(FLASH_BANK1, 1);
     PCM_setCoreVoltageLevel(PCM_VCORE1);
+    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
-    //Set 2 flash wait states for Flash bank 0 and 1
-    FlashCtl_setWaitState(FLASH_BANK0, 2);
-    FlashCtl_setWaitState(FLASH_BANK1, 2);
-
-    //Initializes Clock System
-    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-
-    _graphicsInit();
+    graphicsInit();
     portInit();
     ledPortsInit();
     buttonsInit();
     adcInit();
+    uartInit();
+    sensorsInit();
+
 }
 
 /*---Main---*/
@@ -158,7 +94,6 @@ int main(void){
 
     _hwInit();
     generateMenu();
-    //configureTimerOneSec();
 
     while (1){
         PCM_gotoLPM0(); //Sleep mode
@@ -173,8 +108,9 @@ void PORT3_IRQHandler(){
 
     /* check if we received P3.5 interrupt*/
     if((status & GPIO_PIN5)){
-       Graphics_clearDisplay(&g_sContext); //clear display to avoid graphic bugs
-       generateMenu();
+        generateMenu();
+        showMode=false;
+        inSubMenu=false;
     }
 }
 
@@ -187,20 +123,22 @@ void PORT5_IRQHandler(){
     /* check if we received P5.1 interrupt*/
     if(status & GPIO_PIN1){
 
+        inSubMenu = true;
+
        switch(currentOpt){
 
-           case 0: //moisture graphic
+           case 0: //Sensors data
+                Graphics_clearDisplay(&g_sContext);
+                showSensorData(lux,temp,moisturePercentage);
+                showMode=1;
+                break;
+
+           case 1: //start pump
+               startPump(&dropImage);
                break;
 
-           case 1: //moisture percentage
-               break;
-
-           case 2: //start pump
-               startPump();
-               break;
-
-           case 3: //stop pump
-               stopPump();
+           case 2: //stop pump
+               stopPump(&barDropImage);
                break;
 
            default:
@@ -209,14 +147,29 @@ void PORT5_IRQHandler(){
     }
 }
 
-//Timer one sec, will be called when TA0CCR0 CCIFG is set
 void TA1_0_IRQHandler(){
 
     //Clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
 
-    //Activate conversion
-    //ADC14_toggleConversionTrigger();
+    //Obtain temperature value from TMP006
+    temp = TMP006_getTemp();
+
+    //Temp in celsius
+    temp = (temp - 32.0) * ( 5.0 / 9.0 );
+
+    //Obtain lux value from OPT3001
+    lux = OPT3001_getLux();
+
+    //Obtain moisture value from ADC
+    moisturePercentage = mapToPercentage(curADCResult,14200,16000);
+
+    if(showMode){
+        showSensorData(lux,temp,moisturePercentage);
+    }
+
+    //Send data to the server
+    mapAndSendData(temp,lux,curADCResult);
 }
 
 //ADC Interrupt Handler. This handler is called whenever there is a conversion that is finished for ADC_MEM0.
@@ -227,19 +180,8 @@ void ADC14_IRQHandler(void){
 
     //moisture conversion
     if (ADC_INT0 & status){
-
         /* should be between 0 and 16384*/
         curADCResult = ADC14_getResult(ADC_MEM0);
-
-        float perc = map(curADCResult);
-
-        //printf("%d\n",curADCResult);
-
-        //Display temperature
-        /*char string[10];
-        sprintf(string, "%.2f %%", perc);
-        Graphics_drawStringCentered(&g_sContext, (int8_t *) string, 10, 64, 70, OPAQUE_TEXT);*/
-
     }
 
     //joystick conversion
@@ -254,49 +196,34 @@ void ADC14_IRQHandler(void){
         //joystick down
         if (yVal < lowLimitController){
 
-            if(currentOpt == 3){
+            if(currentOpt == NUM_OPT-1){
                 currentOpt = 0;
             }else{
                 currentOpt++;
             }
             //printf("currentOpt->%d\n",currentOpt);
-            refreshMenu();
-            int i = 0;
-            for(i=0; i<600000; i++);
+            if(!inSubMenu){
+                refreshMenu();
+                int i = 0;
+                for(i=0; i<600000; i++);
+            }
         }
 
         //joystick up
         if(yVal > upLimitController){
 
             if(currentOpt == 0){
-                currentOpt = 3;
+                currentOpt = NUM_OPT-1;
             }else{
                 currentOpt--;
             }
             //printf("currentOpt->%d\n",currentOpt);
-            refreshMenu();
-            int i = 0;
-            for(i=0; i<600000; i++);
+            if(!inSubMenu){
+                refreshMenu();
+                int i = 0;
+                for(i=0; i<600000; i++);
+            }
         }
-
-        /*-----DA TOGLIERE-------*/
-
-        /*char string[10];
-        sprintf(string, "X: %5d", resultsBuffer[0]);
-        Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 50, OPAQUE_TEXT);
-
-        sprintf(string, "Y: %5d", resultsBuffer[1]);
-        //Graphics_drawStringCentered(&g_sContext, (int8_t *)string, 8, 64, 70, OPAQUE_TEXT);
-
-        //Determine if JoyStick button is pressed
-        int buttonPressed = 0;
-        if (!(P4IN & GPIO_PIN1))
-            buttonPressed = 1;
-
-        sprintf(string, "Button: %d", buttonPressed);
-        //Graphics_drawStringCentered(&g_sContext, (int8_t *)string, AUTO_STRING_LENGTH, 64, 90, OPAQUE_TEXT);*/
-
-        /*-------------------*/
     }
 
     ADC14_toggleConversionTrigger(); //toggle another conversion
