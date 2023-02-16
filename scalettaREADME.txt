@@ -1,4 +1,111 @@
+
+DIVISI (finale)
+
+BASIC
 - Titolo e spiegazione generale di cosa fa il progettino
+- File system
+- Requinremets
+    - Hardware
+        - MSP432
+        - Boosterpack MSP432
+        - sensore umidità (capacitive soil moisture sensor v2)
+        - relay 5v
+        - pompa 5v
+        - jumpers wire
+    - Software
+        - CCS
+            - scaricare librerie
+            - includere librerie
+            - includere i nostri file di libreria
+- Schema elettrico
+- Get Started
+    - apri il progetto su CCS e caricalo sulla schedina
+    - collega come nello schema elettrico
+    - ...(spiega comandi e menu, ecc)
+    - test per vedere se funziona tutto (esempio)
+
+
+IOT
+- Spiegazione di cosa fa l'estensione
+- Requinremets
+    - Hardware
+        - ESP32
+    - Software
+        - Arduino
+            - scaricare librerie
+        - Telegram app, bot
+        - MongoDBCompass
+- Schema elettrico
+- Get Started
+    - inserisci IP del server nodejs nel codice ESP
+    - inserisci variabili nel .env del database e del bot
+    - apri arduino e carica il progetto sull'ESP
+    - collega le perifieriche come nello schema elettrico
+    - avvia server nodejs
+    - alimenta le schedine (prima MSP432)
+    - ...(wifi manager, comandi telegram, ecc)
+    - test per vedere se funziona (esempio)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------
+
+UNITO -> non ci sta, non è finito e non lo finisco
+
+- Titolo e spiegazione generale di cosa fa il progettino
+- Requinremets
+    - Hardware
+        - BASIC
+            - MSP432
+            - Boosterpack MSP432
+            - sensore umidità (capacitive soil moisture sensor v2)
+            - relay 5v
+            - pompa 5v
+            - jumpers wire
+        - IOT
+            - ESP32
+    - Software
+        - BASIC
+            - CCS
+                - scaricare librerie
+                - includere librerie
+                - includere i nostri file di libreria
+        - IOT
+            - Arduino
+                - scaricare librerie
+            - Telegram
+            - MongoDB
+- Schema elettrico
+    - BASIC
+        - image
+    - IOT
+        - image
+
+------------------------------------------------
+
+Iniziale non finito
+
+- Titolo e spiegazione generale di cosa fa il progettino
+- file system del progetto
 - Requinremets
     - Hardware
         - MSP432
@@ -15,13 +122,9 @@
             - includere i nostri file di libreria
         - Arduino
             - scaricare librerie
+        - Telegram
+        - MongoDB
 - Schema elettrico
+- Get Started
+    - 
 
-
-da sistemare:
-- file system del progetto -> magari da mettere prima dei requisiti software così da avere più chiaro dove sono le cartelle sulle quali scaricare i file
-- come settare il wifi di ESP32 (wifimanager)
-- sequenza di accensione dei dispositivi (prima MSP432 poi ESP32) -> se no esp potrebbe leggere valori a cazzo dalla uart e fare casino sul DB e variabile pompa
-- come usarlo in generale
-- telegram
-- settare li indirizzi ip nel codice (solo quello del server node, quello dell'esp è già settato, deve solo essere nella stessa rete locale)
