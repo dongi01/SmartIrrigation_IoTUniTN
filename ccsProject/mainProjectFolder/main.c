@@ -39,6 +39,9 @@ bool showMode = false;
 //boolean to not refresh menu if we are in the submenu
 bool inSubMenu = false;
 
+//Number of timer interrupt before removing the app logo
+int showLogoMode = 1;
+
 
 //Variable to store the received uart value
 uint8_t RXData = 0;
@@ -93,7 +96,7 @@ void _hwInit(){
 int main(void){
 
     _hwInit();
-    generateMenu();
+    showAppLogo();
 
     while (1){
         PCM_gotoLPM0(); //Sleep mode
@@ -108,7 +111,8 @@ void PORT3_IRQHandler(){
 
     /* check if we received P3.5 interrupt*/
     if((status & GPIO_PIN5)){
-        generateMenu();
+        lightMode();
+        refreshMenu();
         showMode=false;
         inSubMenu=false;
     }
@@ -129,6 +133,8 @@ void PORT5_IRQHandler(){
 
            case 0: //Sensors data
                 Graphics_clearDisplay(&g_sContext);
+                lightMode();
+                Graphics_drawImage(&g_sContext, &showDataLayoutImage, 0, 0);
                 showSensorData(lux,temp,moisturePercentage);
                 showMode=1;
                 break;
@@ -151,6 +157,15 @@ void TA1_0_IRQHandler(){
 
     //Clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
+
+    //Show the app logo for 2 timer interrupts
+    if(showLogoMode > 0){
+        showAppLogo();
+    }else if(showLogoMode == 0){
+        Graphics_clearDisplay(&g_sContext);
+        refreshMenu();
+    }
+    showLogoMode--;
 
     //Obtain temperature value from TMP006
     temp = TMP006_getTemp();
