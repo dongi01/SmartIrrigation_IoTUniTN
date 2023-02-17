@@ -1,1 +1,0 @@
-Copy in the workspace all this .c files and the exclude them from the build and just run the main.c
