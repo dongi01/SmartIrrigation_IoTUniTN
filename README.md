@@ -1,6 +1,7 @@
 # Smart Irrigation IoT UniTN
 
 ## Basic
+![alt text](readmeImages/image.png?raw=true)
 
 ### Project Layout
 ```
@@ -21,6 +22,8 @@ SmartIrrigation_IoTUniTN
 │   ├── startServer.js              # start telegram bot, http server and connect to database
 │   ├── supportFunction.js          # personal function
 │   └── usersAPI.js                 # functions to manage users data in DB
+├── readmeImages
+│   └── images                      # images for readme
 └── README.md
 ```
 
