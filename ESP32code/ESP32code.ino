@@ -27,6 +27,7 @@ int oldDataPump = dataPump;
 
 // --- SETUP ---
 void setup() {
+  
   // serial for debug and ad comunication
   Serial.begin(115200);
   Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
@@ -86,7 +87,7 @@ void loop() {
 }
 
 
-
+  
 // reading and managing data
 void readManageData() {
   

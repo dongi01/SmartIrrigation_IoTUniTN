@@ -15,8 +15,11 @@ uint8_t unSetControlBit(const uint8_t &firstData){
 
 // cleans the 7th bit of RXTemp to obtain the 6 bit of the temperature 
 int getTemperature(uint8_t RXTemp){
-  RXTemp << 2;
-  return RXTemp >> 2;
+  if (RXTemp >= 64){
+    return RXTemp - 64;
+  } else {
+    return RXTemp;
+  }
 }
 
 // return 1 or 0 to indicate the state of the pump
@@ -47,7 +50,7 @@ void decodeData(const uint8_t &RXMoisture, const uint8_t &RXLight, const uint8_t
                   int &dataMoisture, int &dataLight, int &dataTemp, int &dataPump){ // output
 
   dataMoisture = unSetControlBit(RXMoisture);
-  dataLight = sevenBitsToRange(RXLight, 0, 20000);
+  dataLight = sevenBitsToRange(RXLight, 0, 2000);
   dataTemp = getTemperature(RXTemp);
   dataPump = getDataPump(RXTemp);
   
