@@ -27,7 +27,9 @@ SmartIrrigation_IoTUniTN
 └── README.md
 ```
 
-## IoT integration
+
+
+# IoT integration
 
 This extension allows you to connect the basic system to the internet. In this way you can visualize all your data from your Telegram account with different mode, like in realtime or ondemand. You will also be able to start and stop manually the water pump.
 
@@ -151,3 +153,85 @@ At the end you should have something like this in your Database.
 
 
 Now the configuration of the software is done, later we will have to modify some code!
+
+## Project wiring
+
+## Get started
+
+Now we have to modify some code to make it work for you.
+
+### Set NodeJS server IP adress in ESP32 code
+
+We need to tell the ESP32 which address to send the data to so, in the ESP32code folder open httpClient.cpp in a text editor and change the 6th line. Insert the local IP address of the pc where the server will be running.
+
+```c++
+// node server address
+String serverNode = "http://<yourServerIP>:3000";
+```
+Now ESP32 code is ready!
+
+### Create .env file
+
+Now you have to create a file named `.env` in the node_server folder. <br>
+Once you created it, open it and in the first 2 line write:
+```javascript
+TELEGRAM_TOKEN = '<yourTelegramBotToken>'
+DB_URL = '<yourMongoDBconnectioinLink>/<yourClusterName>'
+```
+
+In the first you need to copy and paste the token given to you by the BotFather and in the second you have to copy and paste the connetion link of your database, followed by the name of your cluster.<br>
+If your database is localy hosted the string will look something like 
+```
+mongodb://localhost:27017
+```
+otherwise it will look something like
+```
+mongodb+srv://<username>:<password>@<clusterName>.[randomCharacter].mongodb.net/<yourDatabaseName>
+```
+
+### Load program image on ESP32
+
+It is time to load the ESP32 code on the board.
+
+In the ESP32code folder open ESP32code.ino with Arduino IDE, connect the ESP32 to the computer with a USB cable and then pres the little arrow icon on the top left of the screen to load the code in the board. It will take some time.
+
+<img src="readmeImages/loadESP32code.png"  width="500">
+
+*NOTE: when a sequence of dots appears in the bottom of the Arduino IDE, make sure to press the boot button on the ESP32 until the dots stop.*
+
+You should end with something like that
+
+<img src="readmeImages/loadESP32Done.png"  width="500">
+
+### Start the all project
+
+First of all power the ESP32 via USB or input pin.
+
+In this first phase we want to tell to ESP32 what network it should connect to. <br>
+The board will act like an access point, so go to your wifi settings(via pc or smartphone) and connect to `AutoConnectAP`: a web page like this should open automatically, if not open your browser and digit or search for WiFiManager in the top bar
+```
+http://192.168.4.1
+```
+
+<img src="readmeImages/WiFiManagerSearch.png"  width="500">
+
+<img src="readmeImages/wifiManager.png"  width="500">
+
+After connecting to local WiFi with ESP32, you can power the MSP432 as well and replicate the project wiring.
+
+Lastly we have to start our NodeJS server. Just open the node_server folder in a terminal and digit
+```
+node app.js
+```
+In this terminal you will see lots of log information that can be usefull, in some cases.
+
+At this point the project should be perfectly running!
+
+### Telegram bot interface 
+
+If you want to be able to use your Telegram bot just open your app and search for the bot that you have created, start it and enjoy!
+You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see the data in realtime activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
+
+Here an example of the telegram interface
+
+<img src="readmeImages/telegramExample.png"  width="500">
