@@ -1,5 +1,46 @@
 # Smart Irrigation IoT UniTN
 
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+    </li>
+    <li>
+      <a href="#basic">Basic</a>
+      <ul>
+        <li><a href="#project-layout">Project Layout</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#iot-integration">IoT Integration</a>
+      <ul>
+        <li><a href="#requirements">Requirements</a></li>
+        <ul>
+            <li><a href="#hardware">Hardware</a></li>
+            <li><a href="#software">Software</a></li>
+        </ul>
+        <li><a href="#project-wiring">Project Wiring</a></li>
+        <li><a href="#get-started">Get Started</a></li>
+            <ol>
+                <li><a href="#set-nodejs-server-ip-adress-in-esp32-code">Set NodeJS server IP adress in ESP32 code</a></li>
+                <li><a href="#create-env-file">Create .env file</a></li>
+                <li><a href="#load-program-image-on-esp32">Load program image on ESP32</a></li>
+                <li><a href="#start-the-all-project">Start the all project</a></li>
+                <li><a href="#telegram-bot-interface">Telegram bot interface</a></li>
+            </ol>
+      </ul>
+    </li>
+  </ol>
+</details>
+
+
+## About the project
+Intro text
+
 ## Basic
 <img src="readmeImages/image.png"  width="50%" height="50%">
 
