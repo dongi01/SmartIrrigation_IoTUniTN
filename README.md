@@ -5,20 +5,18 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-    </li>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#project-layout">Project Layout</a></li>
     <li>
       <a href="#basic">Basic</a>
       <ul>
-        <li><a href="#project-layout">Project Layout</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#basic-requirements">Requirements</a></li>
       </ul>
     </li>
     <li>
       <a href="#iot-integration">IoT Integration</a>
       <ul>
-        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#iot-requirements">Requirements</a></li>
         <ul>
             <li><a href="#hardware">Hardware</a></li>
             <li><a href="#software">Software</a></li>
@@ -40,9 +38,6 @@
 
 ## About the project
 Intro text
-
-## Basic
-<img src="readmeImages/image.png"  width="50%" height="50%">
 
 ### Project Layout
 ```
@@ -68,7 +63,10 @@ SmartIrrigation_IoTUniTN
 └── README.md
 ```
 
+## Basic
+<img src="readmeImages/image.png"  width="50%" height="50%">
 
+### Basic Requirements
 
 # IoT integration
 
@@ -76,7 +74,7 @@ This extension allows you to connect the basic system to the internet. In this w
 
 This bot can respond to different Telegram account and the people that starts it will be included in a gruop. The group created will be always update with a message when the pump changes its state, for whatever reason (by manual command, by telegram command or automatically).
 
-## Requirements
+## IoT Requirements
 
 ### Hardware
 
@@ -95,7 +93,7 @@ You will only need an ESP32 (ESP-WROOM-32) and some other jumpers wire.
 How can I install all of this? Just follow next instructions.
 To install `NodeJS` and `npm` you can easily follow the instruction on this [guide]( https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
-Now that `NodeJS` and `npm` are installed, opned the node_server folder in your terminal and type this command
+Now that `NodeJS` and `npm` are installed, opne the `node_server` folder in your terminal and type this command
 
 ```
 npm install
@@ -107,7 +105,7 @@ Simply download the version for you on their [official web site](https://www.ard
 
 Once you installed it you have to download some libraries to be able to operate on the ESP32 and manage http comounication between NodeJS server and ESP32.
 
-First of all oper Arduino IDE and go to `tool > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
+First of all open Arduino IDE and go to `tool > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
 
 
 <img src="readmeImages/boardManager.png"  width="500">
@@ -133,25 +131,23 @@ Nice, now your Arduino enviroment is ready.
 
 #### **Telegram app, account**
 
-You can download Telegram app directly from your store and create a new account if you haven't already.
+You can download `Telegram` app directly from your store and create a new account if you haven't already.
 
 #### **Telegram bot**
 
-For this extension you have to create your own bot for obvious reason but don't warry, it will be easy!
+For this extension you have to create your own bot for obvious reason but don't worry, it will be easy!
 
-To create your own bot open [BotFather]( https://t.me/BotFather) and prest start button below.
+To create your own bot open [BotFather]( https://t.me/BotFather) and press start button below.
 
 
 <img src="readmeImages/botFatherStart.png"  height="450">
 
 
-readmeImages/librariesManagerW.png
-
 Then you will see some of the operation that the BotFather can do for you so digit or press 
 ```
 /newbot
 ```
-Now you only have to follow its incruction. Remember to save saftily the token thet it will give you, you will need it later!
+Now you only have to follow its instruction. Remember to save saftily the token thet it will give you, you will need it later!
 The last thing you should do in the BotFather is to set commands. Simply digit 
 ```
 /setcommands
@@ -178,7 +174,7 @@ Now you have two solution:
 1. running the database on your local machine
 2. running the database on the cloud
 
-You can careate your local cluster with MongoDB and MongoDBCompass following this [guide](https://zellwk.com/blog/local-mongodb/) (how to create the database and how to connect it, don't look at how to connect from server NodeJS). This method is good if you have a home server but it is not the best if you haven't because your machine should run 24/7.
+You can careate your local cluster with `MongoDB` and `MongoDBCompass` following this [guide](https://zellwk.com/blog/local-mongodb/) (how to create the database and how to connect it, don't look at how to connect from server NodeJS). This method is good if you have a home server but it is not the best if you haven't because your machine should run 24/7.
 
 Otherwhise you can create your MongoDB account and create your cluster online. Follow this [guide](https://www.mongodb.com/basics/clusters/mongodb-cluster-setup) for that.
 
@@ -203,7 +199,7 @@ Now we have to modify some code to make it work for you.
 
 ### Set NodeJS server IP adress in ESP32 code
 
-We need to tell the ESP32 which address to send the data to so, in the ESP32code folder open httpClient.cpp in a text editor and change the 6th line. Insert the local IP address of the pc where the server will be running.
+We need to tell the ESP32 which address to send the data to so, in the `ESP32code` folder open `httpClient.cpp` in a text editor and change the 6th line. Insert the local IP address of the pc where the server will be running.
 
 ```c++
 // node server address
@@ -213,11 +209,11 @@ Now ESP32 code is ready!
 
 ### Create .env file
 
-Now you have to create a file named `.env` in the node_server folder. <br>
+Now you have to create a file named `.env` in the `node_server` folder. <br>
 Once you created it, open it and in the first 2 line write:
 ```javascript
 TELEGRAM_TOKEN = '<yourTelegramBotToken>'
-DB_URL = '<yourMongoDBconnectioinLink>/<yourClusterName>'
+DB_URL = '<yourMongoDBconnectioinLink>/<yourDatabaseName>'
 ```
 
 In the first you need to copy and paste the token given to you by the BotFather and in the second you have to copy and paste the connetion link of your database, followed by the name of your cluster.<br>
@@ -227,14 +223,14 @@ mongodb://localhost:27017
 ```
 otherwise it will look something like
 ```
-mongodb+srv://<username>:<password>@<clusterName>.[randomCharacter].mongodb.net/<yourDatabaseName>
+mongodb+srv://<username>:<password>@<clusterName>.[randomCharacter].mongodb.net
 ```
 
 ### Load program image on ESP32
 
 It is time to load the ESP32 code on the board.
 
-In the ESP32code folder open ESP32code.ino with Arduino IDE, connect the ESP32 to the computer with a USB cable and then pres the little arrow icon on the top left of the screen to load the code in the board. It will take some time.
+In the `ESP32code` folder open `ESP32code.ino` with Arduino IDE, connect the ESP32 to the computer with a USB cable and then press the little arrow icon on the top left of the screen to load the code in the board. It will take some time.
 
 <img src="readmeImages/loadESP32code.png"  width="500">
 
@@ -249,18 +245,14 @@ You should end with something like that
 First of all power the ESP32 via USB or input pin.
 
 In this first phase we want to tell to ESP32 what network it should connect to. <br>
-The board will act like an access point, so go to your wifi settings(via pc or smartphone) and connect to `AutoConnectAP`: a web page like this should open automatically, if not open your browser and digit or search for WiFiManager in the top bar
-```
-http://192.168.4.1
-```
-
+The board will act like an access point, so go to your wifi settings (via pc or smartphone) and connect to `AutoConnectAP`: a web page like below should open automatically, if not open your browser and search for WiFiManager in the top bar
 <img src="readmeImages/WiFiManagerSearch.png"  width="500">
 
 <img src="readmeImages/wifiManager.png"  width="500">
 
 After connecting to local WiFi with ESP32, you can power the MSP432 as well and replicate the project wiring.
 
-Lastly we have to start our NodeJS server. Just open the node_server folder in a terminal and digit
+Lastly we have to start our NodeJS server. Just open the `node_server` folder in a terminal and digit
 ```
 node app.js
 ```
@@ -271,8 +263,8 @@ At this point the project should be perfectly running!
 ### Telegram bot interface 
 
 If you want to be able to use your Telegram bot just open your app and search for the bot that you have created, start it and enjoy!
-You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see the data in realtime activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
+You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see data in realtime activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
 
-Here an example of the telegram interface
+Here an example of the telegram interface.
 
 <img src="readmeImages/telegramExample.png"  width="500">
