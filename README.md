@@ -70,9 +70,9 @@ SmartIrrigation_IoTUniTN
 
 # IoT integration
 
-This extension allows you to connect the basic system to the internet. In this way you can visualize all your data from your Telegram account with different mode, like in realtime or ondemand. You will also be able to start and stop manually the water pump.
+This extension allows you to connect the basic system to the internet. In this way you can visualize all your data from your Telegram account with different mode, like in real time or on demand. You will also be able to start and stop manually the water pump.
 
-This bot can respond to different Telegram account and the people that starts it will be included in a gruop. The group created will be always update with a message when the pump changes its state, for whatever reason (by manual command, by telegram command or automatically).
+This bot can respond to different Telegram accounts and the people that start it will be included in a group. The group created will always be update with a message when the pump changes its state, for whatever reason (by manual command, by telegram command or automatically).
 
 ## IoT Requirements
 
@@ -103,7 +103,7 @@ This command will install for you all the NodeJS packages needed.
 #### **Arduino IDE**
 Simply download the version for you on their [official web site](https://www.arduino.cc/en/software) and follow the installation procedure.
 
-Once you installed it you have to download some libraries to be able to operate on the ESP32 and manage http comounication between NodeJS server and ESP32.
+Once you have installed it you have to download some libraries to be able to operate on the ESP32 and manage http communication between NodeJS server and ESP32.
 
 First of all open Arduino IDE and go to `tool > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
 
@@ -143,11 +143,11 @@ To create your own bot open [BotFather]( https://t.me/BotFather) and press start
 <img src="readmeImages/botFatherStart.png"  height="450">
 
 
-Then you will see some of the operation that the BotFather can do for you so digit or press 
+Then you will see some of the operations that the BotFather can do for you so digit or press 
 ```
 /newbot
 ```
-Now you only have to follow its instruction. Remember to save saftily the token thet it will give you, you will need it later!
+Now you only have to follow its instruction. Remember to save safely the token that it will give you, you will need it later!
 The last thing you should do in the BotFather is to set commands. Simply digit 
 ```
 /setcommands
@@ -174,11 +174,11 @@ Now you have two solution:
 1. running the database on your local machine
 2. running the database on the cloud
 
-You can careate your local cluster with `MongoDB` and `MongoDBCompass` following this [guide](https://zellwk.com/blog/local-mongodb/) (how to create the database and how to connect it, don't look at how to connect from server NodeJS). This method is good if you have a home server but it is not the best if you haven't because your machine should run 24/7.
+You can create your local cluster with `MongoDB` and `MongoDBCompass` following this [guide](https://zellwk.com/blog/local-mongodb/) (how to create the database and how to connect it, don't look at how to connect from server NodeJS). This method is good if you have a home server but it is not the best if you haven't because your machine should run 24/7.
 
 Otherwhise you can create your MongoDB account and create your cluster online. Follow this [guide](https://www.mongodb.com/basics/clusters/mongodb-cluster-setup) for that.
 
-Onece you have your cluster you have to create one database, witch will be composed of two collection:
+Once you have your cluster you have to create one database, witch will be composed of two collections:
 1. Users
 2. Sensors_data
 
@@ -210,14 +210,14 @@ Now ESP32 code is ready!
 ### Create .env file
 
 Now you have to create a file named `.env` in the `node_server` folder. <br>
-Once you created it, open it and in the first 2 line write:
+Once you have created it, open it and in the first 2 line write:
 ```javascript
 TELEGRAM_TOKEN = '<yourTelegramBotToken>'
 DB_URL = '<yourMongoDBconnectioinLink>/<yourDatabaseName>'
 ```
 
-In the first you need to copy and paste the token given to you by the BotFather and in the second you have to copy and paste the connetion link of your database, followed by the name of your cluster.<br>
-If your database is localy hosted the string will look something like 
+In the first you need to copy and paste the token given to you by the BotFather and in the second you have to copy and paste the connection link of your database, followed by the name of your cluster.<br>
+If your database is locally hosted the string will look something like 
 ```
 mongodb://localhost:27017
 ```
@@ -263,7 +263,7 @@ At this point the project should be perfectly running!
 ### Telegram bot interface 
 
 If you want to be able to use your Telegram bot just open your app and search for the bot that you have created, start it and enjoy!
-You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see data in realtime activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
+You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see data in real time activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
 
 Here an example of the telegram interface.
 
