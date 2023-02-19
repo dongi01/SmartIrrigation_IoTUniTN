@@ -1,4 +1,4 @@
-# Smart Irrigation IoT UniTN
+# Smart Irrigation System IoT UniTN
 
 
 <!-- TABLE OF CONTENTS -->
