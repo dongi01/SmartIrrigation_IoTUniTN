@@ -18,20 +18,20 @@
 #include "sensors.c"
 
 
-//#define NUM_OPT 4 //number of options for menu
-#define TIMER_PERIOD 0x8000 // = 32768, one sec timer
+// #define NUM_OPT 3 //Number of options for menu
+// #define TIMER_PERIOD 0x8000 // = 32768
 #define upLimitController 12200 //controller movement up-limit
 #define lowLimitController 4200 //controller movement low-limit
 
-//Initializing variable for temperature ADC
+//Initializing variable for moisture ADC
 static volatile uint16_t curADCResult;
 
 //Variable for storing temperature value returned from TMP006
 float temp;
 //Variable for storing light value returned from OPT3001
-int lux;
+unsigned int lux;
 //Variable for storing moisturePercetage taken from adc convertion
-int moisturePercentage;
+unsigned int moisturePercentage;
 
 //Boolean to keep refreshing data in sensors data mode
 bool showMode = false;
@@ -41,8 +41,6 @@ bool inSubMenu = false;
 
 //Number of timer interrupt before removing the app logo
 int showLogoMode = 1;
-
-
 
 //Variable to store the received uart value
 uint8_t RXData = 0;
@@ -84,6 +82,8 @@ void _hwInit(){
 int main(void){
 
     _hwInit();
+
+    //Show Smart Irrigation logo
     showAppLogo();
 
     while (1){
@@ -95,9 +95,9 @@ int main(void){
 void PORT3_IRQHandler(){
 
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P3);
-    GPIO_clearInterruptFlag(GPIO_PORT_P3, status); //clear interrupt flag
+    GPIO_clearInterruptFlag(GPIO_PORT_P3, status); //Clear interrupt flag
 
-    /* check if we received P3.5 interrupt*/
+    //Check if we received P3.5 interrupt
     if((status & GPIO_PIN5)){
         lightMode();
         refreshMenu();
@@ -110,16 +110,16 @@ void PORT3_IRQHandler(){
 void PORT5_IRQHandler(){
 
     uint_fast16_t status = GPIO_getEnabledInterruptStatus(GPIO_PORT_P5);
-    GPIO_clearInterruptFlag(GPIO_PORT_P5, status); //clear interrupt flag
+    GPIO_clearInterruptFlag(GPIO_PORT_P5, status); //Clear interrupt flag
 
-    /* check if we received P5.1 interrupt*/
+    //Check if we received P5.1 interrupt
     if(status & GPIO_PIN1){
 
         inSubMenu = true;
 
-       switch(currentOpt){
+        switch(currentOpt){
 
-           case 0: //Sensors data
+            case 0: //Sensors data
                 Graphics_clearDisplay(&g_sContext);
                 lightMode();
                 Graphics_drawImage(&g_sContext, &showDataLayoutImage, 0, 0);
@@ -127,20 +127,21 @@ void PORT5_IRQHandler(){
                 showMode=1;
                 break;
 
-           case 1: //start pump
-               startPump(&dropImage);
-               break;
+            case 1: //start pump
+                startPump(&dropImage); //Water drop image
+                break;
 
-           case 2: //stop pump
-               stopPump(&barDropImage);
-               break;
+            case 2: //stop pump
+                stopPump(&barDropImage); //Crossed water drop image
+                break;
 
-           default:
-               printf("problems problems problems\n");
-       }
+            default:
+                printf("problems problems problems\n");
+        }
     }
 }
 
+//Timer interrupt handler
 void TA1_0_IRQHandler(){
 
     //Clear interrupt flag
@@ -156,41 +157,40 @@ void TA1_0_IRQHandler(){
     showLogoMode--;
 
     if(pumpOn && timePumpOn == 0){
-        stopPump(&barDropImage);
+        stopPump(&barDropImage); //Crossed water drop image
     }else if(pumpOn){
         timePumpOn--;
     }
 
-
     //Obtain temperature value from TMP006
     temp = TMP006_getTemp();
-
     //Temp in celsius
     temp = (temp - 32.0) * ( 5.0 / 9.0 );
 
     //Obtain lux value from OPT3001
     lux = OPT3001_getLux();
 
-    //Obtain moisture value from ADC
+    //Map moisutre value from ADC
     moisturePercentage = mapToPercentage(curADCResult,MIN_ADC_MOISTURE_VALUE,MAX_ADC_MOISTURE_VALUE);
 
+    //If show mode print sensors data
     if(showMode){
         showSensorData(lux,temp,moisturePercentage);
     }
 
-    //Send data to the server
+    //Send data to the ESP32
     mapAndSendData(temp,lux,curADCResult);
 }
 
-//ADC Interrupt Handler. This handler is called whenever there is a conversion that is finished for ADC_MEM0.
+//ADC Interrupt Handler, this handler is called whenever there is a conversion that is finished for ADC_MEM0
 void ADC14_IRQHandler(void){
 
     uint64_t status = ADC14_getEnabledInterruptStatus();
-    ADC14_clearInterruptFlag(status); //clear interrupt flag
+    ADC14_clearInterruptFlag(status); //Clear interrupt flag
 
-    //moisture conversion
+    //Get moisture value from ADC
     if (ADC_INT0 & status){
-        /* should be between 0 and 16384*/
+        //Should be between 0 and 16384
         curADCResult = ADC14_getResult(ADC_MEM0);
         printf("%d\n",curADCResult);
     }
@@ -204,9 +204,10 @@ void ADC14_IRQHandler(void){
         //int yVal = resultsBuffer[1];
         int yVal = ADC14_getResult(ADC_MEM1);
 
-        //joystick down
+        //Joystick down
         if (yVal < lowLimitController){
 
+            //Update selected menu option
             if(currentOpt == NUM_OPT-1){
                 currentOpt = 0;
             }else{
@@ -216,13 +217,14 @@ void ADC14_IRQHandler(void){
             if(!inSubMenu){
                 refreshMenu();
                 int i = 0;
-                for(i=0; i<600000; i++);
+                for(i=0; i<300000; i++); //Delay for controller usability
             }
         }
 
-        //joystick up
+        //Joystick up
         if(yVal > upLimitController){
 
+            //Update selected menu option
             if(currentOpt == 0){
                 currentOpt = NUM_OPT-1;
             }else{
@@ -232,35 +234,37 @@ void ADC14_IRQHandler(void){
             if(!inSubMenu){
                 refreshMenu();
                 int i = 0;
-                for(i=0; i<600000; i++);
+                for(i=0; i<300000; i++); //Delay for controller usability
             }
         }
     }
 
-    ADC14_toggleConversionTrigger(); //toggle another conversion
+    ADC14_toggleConversionTrigger(); //Toggle another conversion
 }
 
-/* EUSCI A0 UART ISR - Echos data back to PC host */
-void EUSCIA2_IRQHandler(void)
-{
+//EUSCI A0 UART ISR - reciever handler
+void EUSCIA2_IRQHandler(void){
+
     uint32_t status = UART_getEnabledInterruptStatus(EUSCI_A2_BASE);
 
-    if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
-    {
-        RXData = UART_receiveData(EUSCI_A2_BASE);
+    if(status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG){
 
+        //Save recieved data
+        RXData = UART_receiveData(EUSCI_A2_BASE);
         printf("RXData: %d\n",RXData);
 
         if(RXData == 240){
             redOn();
+            startPump(&dropImage);
         }else if(RXData == 10){
             greenOn();
+            stopPump(&barDropImage);
         }else{
             blueOn();
         }
 
-        int i=0;
-        for(i=0; i<100000; i++);
+        // int i=0;
+        // for(i=0; i<100000; i++);
 
         Interrupt_disableSleepOnIsrExit();
     }

@@ -7,7 +7,7 @@ int timePumpOn;
 
 void stopPump(const Graphics_Image* image);
 
-//animate the display and then start the pump
+//Animate the display and then start the pump
 void startPump(const Graphics_Image* image){
 
     darkMode();
@@ -31,7 +31,7 @@ void startPump(const Graphics_Image* image){
     }
 }
 
-//animate the display and stop the pump
+//Animate the display and stop the pump
 void stopPump(const Graphics_Image* image){
 
     darkMode();

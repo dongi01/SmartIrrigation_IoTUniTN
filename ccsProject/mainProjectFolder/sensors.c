@@ -42,9 +42,9 @@ void adcInit(){
 
 void sensorsInit(){
 
-    //Initialize pins for relay
+    //Initialize control pin for relay
     GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN7);
-    GPIO_setOutputHighOnPin(GPIO_PORT_P2,GPIO_PIN7); //relay activates when P2.7 = 0
+    GPIO_setOutputHighOnPin(GPIO_PORT_P2,GPIO_PIN7); //Relay activates when P2.7 = 0
 
     //Initialize I2C communication
     Init_I2C_GPIO();
