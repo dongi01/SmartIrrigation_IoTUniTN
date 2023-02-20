@@ -24,7 +24,7 @@ const eUSCI_UART_ConfigV1 uartConfig =
 const Timer_A_UpModeConfig upConfig =
 {
         TIMER_A_CLOCKSOURCE_ACLK,              // SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_5,         // 32 KHz / 10 = 3.2 KHz / 32 000 = 10 sec
+        TIMER_A_CLOCKSOURCE_DIVIDER_2,         // 32 KHz / 10 = 3.2 KHz / 32 000 = 10 sec
         TIMER_PERIOD,                           // every half second
         TIMER_A_TAIE_INTERRUPT_DISABLE,         // Disable Timer interrupt
         TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,     // Enable CCR0 interrupt
@@ -52,11 +52,13 @@ uint_fast8_t rangeTo7bits(int value, int minI, int maxI) {  // I for initial, F 
 
     uint8_t returnValue;
 
-    if(value < 128){
-        returnValue = value;
-    }else{
-        returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
+    if(value > maxI){
+        return 127;
     }
+
+    returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
+    returnValue = 100 - returnValue;
+    
     return returnValue;
 }
 
@@ -75,8 +77,8 @@ uint_fast8_t setControlBit(uint8_t firstData){
 void mapAndSendData(float temp, int lux, float moistureAdcValue){
 
     //Mapping on 7 bits
-    uint_fast8_t TXMoisture = mapToPercentage(moistureAdcValue, 14200, 16000); //16384 max value of ADC-> 16000 water value
-    uint_fast8_t TXLight = rangeTo7bits(lux, 0, 20000); //need to set max value of light
+    uint_fast8_t TXMoisture = mapToPercentage(moistureAdcValue, 5000 , 14200); //16384 max value of ADC-> 16000 water value
+    uint_fast8_t TXLight = rangeTo7bits(lux, 0, 2000); //need to set max value of light
     uint_fast8_t TXTemp = rangeTo7bits(temp, 0, 127); //max temp is set to 127
 
     if(pumpOn)TXTemp+=64;
@@ -99,7 +101,7 @@ void mapAndSendData(float temp, int lux, float moistureAdcValue){
 
 void uartInit(){
 
-    // /* Selecting P1.2 and P1.3 in UART mode*/
+     /* Selecting P1.2 and P1.3 in UART mode*/
     GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P3,
              GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
 

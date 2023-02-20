@@ -43,19 +43,9 @@ bool inSubMenu = false;
 int showLogoMode = 1;
 
 
+
 //Variable to store the received uart value
 uint8_t RXData = 0;
-
-void portInit(){
-
-    //set P4.1 for relay control
-    GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
-    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1); //relay activates when P4.1 = 0
-
-    //set P1.0 for relay check
-    GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN0);
-    GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0);
-}
 
 void _hwInit(){
 
@@ -83,13 +73,11 @@ void _hwInit(){
 //    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_24);
 
     graphicsInit();
-    portInit();
     ledPortsInit();
     buttonsInit();
     adcInit();
-    uartInit();
     sensorsInit();
-
+    uartInit();
 }
 
 /*---Main---*/
@@ -167,6 +155,13 @@ void TA1_0_IRQHandler(){
     }
     showLogoMode--;
 
+    if(pumpOn && timePumpOn == 0){
+        stopPump(&barDropImage);
+    }else if(pumpOn){
+        timePumpOn--;
+    }
+
+
     //Obtain temperature value from TMP006
     temp = TMP006_getTemp();
 
@@ -177,7 +172,7 @@ void TA1_0_IRQHandler(){
     lux = OPT3001_getLux();
 
     //Obtain moisture value from ADC
-    moisturePercentage = mapToPercentage(curADCResult,14200,16000);
+    moisturePercentage = mapToPercentage(curADCResult,MIN_ADC_MOISTURE_VALUE,MAX_ADC_MOISTURE_VALUE);
 
     if(showMode){
         showSensorData(lux,temp,moisturePercentage);
@@ -197,6 +192,7 @@ void ADC14_IRQHandler(void){
     if (ADC_INT0 & status){
         /* should be between 0 and 16384*/
         curADCResult = ADC14_getResult(ADC_MEM0);
+        printf("%d\n",curADCResult);
     }
 
     //joystick conversion
