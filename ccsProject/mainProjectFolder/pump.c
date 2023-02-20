@@ -46,7 +46,6 @@ void stopPump(const Graphics_Image* image){
         drawImage(image,16,16);
         pumpOn = false;
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN7); //open relay and turn off pump
-        //GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0); //turn off led when pump isn't working
         clearLeds();
     }
 }
