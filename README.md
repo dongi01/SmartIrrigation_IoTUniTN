@@ -78,17 +78,43 @@ SmartIrrigation_IoTUniTN
 └── README.md
 ```
 
-## Basic
+# Basic
+
+<div align="center">
+<img src="readmeImages/appLogo.png" width="200">
+</div>
+
 The basic idea of the project is based on a offline irrigation system, which can be controlled directly by the MSP432. Using the lcd screen, it has different features to be execute by choosing with its own integrated controller and buttons.
 
+## Basic Requirements
+
+### Harware
+You will need an MSP432p401r of the Texas Instrument company with its own expansion: the BOOSTXL-EDUMKII. Moreover you will have to use a capacitive soil moisture sensor for the moisture detection, a 5v relay, a 5v pump and some jumper wires.
+
+### Software
+In order to flash the program into the Texas Instrument components, you need to install Code Composer Studio (at this link https://www.ti.com/tool/download/CCSTUDIO/12.2.0). 
+
+The next step is to create a new CCS project, choosing the right target system (MSP432P401R), and paste all the files in ccsProject/mainProjectFolder and ccsProject/sensorsLibraries folders. You need also to exlude all the .c files, exept for the main.c and the one from the sensorsLibraries, from the build with a right click on them.
+
+Finally to run the project you will need to add to the linker option the driverlib library downloading it at this link https://drive.google.com/file/d/1krZfBNAFiE6yAChQfHZVE-b0wfuDitgV/view?usp=sharing. 
+
+<img src="readmeImages/libraryImage.png">
+
+## Electric schema
+
+## Get started
+If all the software requirements are satisfied, you need to connect all the sensors and the microcontroller as you can see in the electric schema above. Now, you are able to flash the program on the MSP, using the command flash on CCS, and start using the whole offline system. 
+
 <p align="center">
-<img src="readmeImages/menuImage.jpg"  width="200" hspace=7>
+<img src="readmeImages/menuImage.jpg"  width="200" hspace=50>
 <img src="readmeImages/showSensorsImage.jpg"  width="200">
 </p>
 
-In the images above we can see a few examples of the graphic interface 
+As you can see in the image above, once the program start running you will see the app logo appearing for a few seconds and you will soon be able use the app menu to try the different functionalities.
 
-### Basic Requirements
+In particular, in the second image it is shown a sample of the sensors data page that is constantly refreshing with the brand new data collected by the sensors.
+
+
 
 # IoT integration
 
