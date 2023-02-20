@@ -30,7 +30,6 @@ void showAppLogo(){
 void refreshMenu(){
 
     Graphics_drawImage(&g_sContext, &menuLayoutImage, 0, 0);
-    //Graphics_drawStringCentered(&g_sContext, (int8_t *) "Menu:", AUTO_STRING_LENGTH, 64, 30, OPAQUE_TEXT);
 
     int32_t verticalPos = 60; //Vertical position of the first menu option
     int i = 0;
