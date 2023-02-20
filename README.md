@@ -39,7 +39,7 @@
 ## About the project
 Welcome to the Smart Irrigation System!
 
-This system is designed to help you water your plants efficiently and effectively. It uses a combination of sensors, microcontrollers, and a water pump to automatically water your plants.
+This system is designed to help you water your plants efficiently and effectively. It uses a combination of sensors, microcontrollers, and a water pump to automatically water your plants, or even control it remotely.
 
 The system includes the following components:
   - MSP432: This device reads the data from the sensors, determines whether the plants need to be watered and is connected to internet by an ESP32.

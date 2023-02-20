@@ -48,11 +48,11 @@ uint8_t RXData = 0;
 
 void portInit(){
 
-    //set P4.1 for relay control
+    //Set P4.1 for relay control
     GPIO_setAsOutputPin(GPIO_PORT_P4,GPIO_PIN1);
-    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1); //relay activates when P4.1 = 0
+    GPIO_setOutputHighOnPin(GPIO_PORT_P4,GPIO_PIN1); //Relay activates when P4.1 = 0
 
-    //set P1.0 for relay check
+    //Set P1.0 for relay check
     GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN0);
     GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN0);
 }
