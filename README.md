@@ -37,7 +37,22 @@
 
 
 ## About the project
-Intro text
+Welcome to the Smart Irrigation System!
+
+This system is designed to help you water your plants efficiently and effectively. It uses a combination of sensors, microcontrollers, and a water pump to automatically water your plants.
+
+The system includes the following components:
+  - MSP432: This device reads the data from the sensors, determines whether the plants need to be watered and is connected to internet by an ESP32.
+  - ESP32: This microcontroller is uesd to connect the system to internet in order to use a Telegram bot that lets overview the framework.
+  - Soil moisture sensor: This sensor measures the moisture level in the soil and sends data to the msp microcontroller.
+  - Temperature and light sensor: This sensor measures the temperature and light of the surrounding environment and sends data to the msp microcontroller.
+  - Water pump: This pump is connected to a water source and is used to water the plants when necessary.
+
+The system works by continuously monitoring the soil moisture level and environmental conditions. If the moisture level is too low and the temperature and humidity are within acceptable ranges, the microcontroller will activate the water pump to water the plants.
+
+Otherwise the user can control the system remotely with our Telegram bot. It is integrated with the microcontroller and can receive data from the sensors. It can also send commands to the microcontroller to control the water pump. The user can access the Telegram bot from their smartphone or computer.
+
+Overall, the Telegram bot is a useful feature that adds flexibility and convenience to the Smart Automatic Irrigation System.
 
 ### Project Layout
 ```
