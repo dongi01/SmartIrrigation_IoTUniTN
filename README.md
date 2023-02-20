@@ -1,5 +1,8 @@
 # Smart Irrigation System IoT UniTN
 
+<div align="center">
+<img src="readmeImages/appLogo.png" width="200">
+</div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -80,15 +83,11 @@ SmartIrrigation_IoTUniTN
 
 # Basic
 
-<div align="center">
-<img src="readmeImages/appLogo.png" width="200">
-</div>
-
 The basic idea of the project is based on a offline irrigation system, which can be controlled directly by the MSP432. Using the lcd screen, it has different features to be execute by choosing with its own integrated controller and buttons.
 
 ## Basic Requirements
 
-### Harware
+### Hardware
 You will need an MSP432p401r of the Texas Instrument company with its own expansion: the BOOSTXL-EDUMKII. Moreover you will have to use a capacitive soil moisture sensor for the moisture detection, a 5v relay, a 5v pump and some jumper wires.
 
 ### Software
@@ -100,7 +99,11 @@ Finally to run the project you will need to add to the linker option the driverl
 
 <img src="readmeImages/libraryImage.png">
 
-## Electric schema
+## Project wiring
+
+<p align="center">
+<img src="readmeImages/electricSchemaBasic.png">
+</p>
 
 ## Get started
 If all the software requirements are satisfied, you need to connect all the sensors and the microcontroller as you can see in the electric schema above. Now, you are able to flash the program on the MSP, using the command flash on CCS, and start using the whole offline system. 
@@ -240,6 +243,10 @@ At the end you should have something like this in your Database.
 Now the configuration of the software is done, later we will have to modify some code!
 
 ## Project wiring
+
+<p align="center">
+<img src="readmeImages/electricSchemaIOT.png">
+</p>
 
 ## Get started
 
