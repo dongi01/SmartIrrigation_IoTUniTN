@@ -1,3 +1,4 @@
+//BoosterPack buttons
 void buttonsInit(){
 
     //setting pin as input in pull up mode
