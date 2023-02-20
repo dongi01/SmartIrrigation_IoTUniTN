@@ -1,3 +1,6 @@
+#define MAX_ADC_MOISTURE_VALUE 16000
+#define MIN_ADC_MOISTURE_VALUE 14200
+
 void adcInit(){
 
     /* Configuring GPIOs (5.5 A0) */
@@ -10,15 +13,8 @@ void adcInit(){
     /* Enable ADC block*/
     ADC14_enableModule();
 
-    //![Single Sample Mode Configure]
-    /* Initializing ADC (MCLK/1/4) */
-   // ADC14_initModule(ADC_CLOCKSOURCE_MCLK, ADC_PREDIVIDER_1, ADC_DIVIDER_1, 0);
-
     //controller file clock
     ADC14_initModule(ADC_CLOCKSOURCE_ADCOSC, ADC_PREDIVIDER_64, ADC_DIVIDER_8, 0);
-
-    /* Configuring ADC Memory */
-    //ADC14_configureSingleSampleMode(ADC_MEM0, true);
 
     //nuovo incollato
     ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM1, true);
@@ -45,6 +41,10 @@ void adcInit(){
 }
 
 void sensorsInit(){
+
+    //Initialize pins for relay
+    GPIO_setAsOutputPin(GPIO_PORT_P2,GPIO_PIN7);
+    GPIO_setOutputHighOnPin(GPIO_PORT_P2,GPIO_PIN7); //relay activates when P2.7 = 0
 
     //Initialize I2C communication
     Init_I2C_GPIO();

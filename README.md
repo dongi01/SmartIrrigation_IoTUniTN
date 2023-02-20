@@ -79,7 +79,14 @@ SmartIrrigation_IoTUniTN
 ```
 
 ## Basic
-<img src="readmeImages/image.png"  width="50%" height="50%">
+The basic idea of the project is based on a offline irrigation system, which can be controlled directly by the MSP432. Using the lcd screen, it has different features to be execute by choosing with its own integrated controller and buttons.
+
+<p align="center">
+<img src="readmeImages/menuImage.jpg"  width="200" hspace=7>
+<img src="readmeImages/showSensorsImage.jpg"  width="200">
+</p>
+
+In the images above we can see a few examples of the graphic interface 
 
 ### Basic Requirements
 
