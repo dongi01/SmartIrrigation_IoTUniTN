@@ -14,6 +14,16 @@
       <a href="#basic">Basic</a>
       <ul>
         <li><a href="#basic-requirements">Requirements</a></li>
+        <ul>
+            <li><a href="#Hardware">Hardware</a></li>
+            <li><a href="#Software">Software</a></li>
+        </ul>
+      </ul>
+      <ul>
+        <li><a href="#Project-wiring">Project wiring</a></li>
+      </ul>
+      <ul>
+        <li><a href="#Get-started">Get started</a></li>
       </ul>
     </li>
     <li>
