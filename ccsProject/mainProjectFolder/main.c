@@ -165,6 +165,10 @@ void TA1_0_IRQHandler(){
     //Map moisutre value from ADC
     moisturePercentage = mapToPercentage(curADCResult,MIN_ADC_MOISTURE_VALUE,MAX_ADC_MOISTURE_VALUE);
 
+    if(moisutrePercentage < 20){
+        startPump(&dropImage); //Function call to check if it works in real world
+    }
+
     //If show mode print sensors data
     if(showMode){
         showSensorData(lux,temp,moisturePercentage);

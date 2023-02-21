@@ -77,13 +77,12 @@ uint_fast8_t setControlBit(uint8_t firstData){
 //Map and send data to the ESP32
 void mapAndSendData(float temp, int lux, float moistureAdcValue){
 
-    if (lux > 2000) lux = 2000; //max value of light
-    if (temp > 63) temp = 63; //max value of temperature
-
     //Mapping on 7 bits
     uint_fast8_t TXMoisture = mapToPercentage(moistureAdcValue, 5000 , 14200); //16384 max value of ADC-> 16000 water value
     uint_fast8_t TXLight = rangeTo7bits(lux, 0, 2000);
     uint_fast8_t TXTemp = rangeTo7bits(temp, 0, 63);
+
+    if (temp > 63) temp = 63; //max value of temperature
 
     //Set second bit of temperature byte to 1 if pump is on
     if(pumpOn) TXTemp+=64;
