@@ -111,12 +111,6 @@ void readManageData() {
 
   // send data to server
   sendData(dataMoisture, dataLight, dataTemp);
-
-  //debugging print
-  Serial.println(dataMoisture);
-  Serial.println(dataLight);
-  Serial.println(dataTemp);
-  Serial.println(dataPump);
   
   Serial.println("");
 }

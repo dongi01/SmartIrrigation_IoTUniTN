@@ -3,7 +3,7 @@
 #include <string.h>
 
 // node server address
-String serverNode = "http://192.168.29.205:3000";
+String serverNode = "http://192.168.137.205:3000";
 
 // send sensors data to node server
 void sendData(const int &dataMoisture, const int &dataLight, const int &dataTemp) {

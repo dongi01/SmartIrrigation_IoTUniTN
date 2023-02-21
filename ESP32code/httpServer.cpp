@@ -24,6 +24,7 @@ void defineHandlers(){
 // --- HTTP request handlers ---
 
 void handleStart() {
+  Serial.println("ricevuta handle start");
   Serial.println("pump started");
   // send message via serial comunication
   Serial2.write(240); // value to indicate to start pump
@@ -33,6 +34,7 @@ void handleStart() {
 }
 
 void handleStop() {
+  Serial.println("ricevuta handle stop");
   Serial.println("pump stopped");
   // send message via serial comunication
   Serial2.write(10); // value to indicate to stop pump
