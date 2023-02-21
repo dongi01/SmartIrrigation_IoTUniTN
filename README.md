@@ -95,7 +95,7 @@ In order to flash the program into the Texas Instrument components, you need to 
 
 The next step is to create a new CCS project, choosing the right target system (MSP432P401R), and paste all the files in ccsProject/mainProjectFolder and ccsProject/sensorsLibraries folders. You need also to exlude all the .c files, exept for the main.c and the one from the sensorsLibraries, from the build with a right click on them.
 
-Finally to run the project you will need to add to the linker option the driverlib library downloading it at this link https://drive.google.com/file/d/1krZfBNAFiE6yAChQfHZVE-b0wfuDitgV/view?usp=sharing. 
+Finally to run the project you will need to add to the linker option and to the compiler option the driverlib library downloading it at this link https://drive.google.com/file/d/1krZfBNAFiE6yAChQfHZVE-b0wfuDitgV/view?usp=sharing. 
 
 <img src="readmeImages/libraryImage.png">
 
