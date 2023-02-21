@@ -176,11 +176,7 @@ Simply download the version for you on their [official web site](https://www.ard
 
 Once you have installed it you have to download some libraries to be able to operate on the ESP32 and manage http communication between NodeJS server and ESP32.
 
-First of all open Arduino IDE and go to `tool > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
-
-<p align="center">
-<img src="readmeImages/boardManager.png"  width="500">
-</p>
+First of all open Arduino IDE and go to `Tools > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
 
 <p align="center">
 <img src="readmeImages/boardManagerW.png"  width="500">
@@ -188,15 +184,12 @@ First of all open Arduino IDE and go to `tool > Board > Boards Manager`, search 
 
 Then we want to install the libraries required for the http comunication.
 
-Go to `tool > Manage Libraries` and search for:
+Go to `Tools > Manage Libraries` and search for:
 
 1. HttpClient by Adrian McEwen
 2. WebServer_ESP32_SC_ENC by Khoi Hoang
 3. WiFiManager by tablatronix
 
-<p align="center">
-<img src="readmeImages/librariesManager.png"  width="500">
-</p>
 
 <p align="center">
 <img src="readmeImages/librariesManagerW.png"  width="500">

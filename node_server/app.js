@@ -96,7 +96,7 @@ servers.bot.command('get_realtime_data', async (context) => {
     let user = await usersAPI.searchUser(context.message.from.id);
     if (user.realtime === false) {
         console.log('realtime mode activated by ' + context.message.from.first_name + ' ' + context.message.from.last_name);
-        context.reply('realt time mdoe: started \u{1F7E2}');
+        context.reply('real time mode: started \u{1F7E2}');
         context.reply('you will see data every ' + usersAPI.TIME_INTERVAL + ' seconds');
 
         user_interval = setInterval( async () => {
