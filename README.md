@@ -14,6 +14,16 @@
       <a href="#basic">Basic</a>
       <ul>
         <li><a href="#basic-requirements">Requirements</a></li>
+        <ul>
+            <li><a href="#Hardware">Hardware</a></li>
+            <li><a href="#Software">Software</a></li>
+        </ul>
+      </ul>
+      <ul>
+        <li><a href="#Project-wiring">Project wiring</a></li>
+      </ul>
+      <ul>
+        <li><a href="#Get-started">Get started</a></li>
       </ul>
     </li>
     <li>
@@ -97,12 +107,14 @@ The next step is to create a new CCS project, choosing the right target system (
 
 Finally to run the project you will need to add to the linker option and to the compiler option the driverlib library downloading it at this link https://drive.google.com/file/d/1krZfBNAFiE6yAChQfHZVE-b0wfuDitgV/view?usp=sharing. 
 
-<img src="readmeImages/libraryImage.png">
+<p align="center">
+<img src="readmeImages/libraryImage.png" width="400">
+</p>
 
 ## Project wiring
 
 <p align="center">
-<img src="readmeImages/electricSchemaBasic.png">
+<img src="readmeImages/electricSchemaBasic.png" width="400"> 
 </p>
 
 ## Get started
@@ -158,12 +170,13 @@ Once you have installed it you have to download some libraries to be able to ope
 
 First of all open Arduino IDE and go to `tool > Board > Boards Manager`, search for ESP32 by Espressif Systems and press install.
 
-
+<p align="center">
 <img src="readmeImages/boardManager.png"  width="500">
+</p>
 
-
+<p align="center">
 <img src="readmeImages/boardManagerW.png"  width="500">
-
+</p>
 
 Then we want to install the libraries required for the http comunication.
 
@@ -173,10 +186,13 @@ Go to `tool > Manage Libraries` and search for:
 2. WebServer_ESP32_SC_ENC by Khoi Hoang
 3. WiFiManager by tablatronix
 
+<p align="center">
 <img src="readmeImages/librariesManager.png"  width="500">
+</p>
 
+<p align="center">
 <img src="readmeImages/librariesManagerW.png"  width="500">
-
+</p>
 
 Nice, now your Arduino enviroment is ready.
 
@@ -191,7 +207,9 @@ For this extension you have to create your own bot for obvious reason but don't 
 To create your own bot open [BotFather]( https://t.me/BotFather) and press start button below.
 
 
+<p align="center">
 <img src="readmeImages/botFatherStart.png"  height="450">
+</p>
 
 
 Then you will see some of the operations that the BotFather can do for you so digit or press 
@@ -237,15 +255,16 @@ It is very important to name these collection exactly in this way.
 
 At the end you should have something like this in your Database.
 
+<p align="center">
 <img src="readmeImages/mongoDBCompass.png"  width="500">
-
+</p>
 
 Now the configuration of the software is done, later we will have to modify some code!
 
 ## Project wiring
 
 <p align="center">
-<img src="readmeImages/electricSchemaIOT.png">
+<img src="readmeImages/electricSchemaIOT.png" width="400">
 </p>
 
 ## Get started
@@ -287,13 +306,17 @@ It is time to load the ESP32 code on the board.
 
 In the `ESP32code` folder open `ESP32code.ino` with Arduino IDE, connect the ESP32 to the computer with a USB cable and then press the little arrow icon on the top left of the screen to load the code in the board. It will take some time.
 
+<p align="center">
 <img src="readmeImages/loadESP32code.png"  width="500">
+</p>
 
 *NOTE: when a sequence of dots appears in the bottom of the Arduino IDE, make sure to press the boot button on the ESP32 until the dots stop.*
 
 You should end with something like that
 
+<p align="center">
 <img src="readmeImages/loadESP32Done.png"  width="500">
+</p>
 
 ### Start the all project
 
@@ -301,9 +324,14 @@ First of all power the ESP32 via USB or input pin.
 
 In this first phase we want to tell to ESP32 what network it should connect to. <br>
 The board will act like an access point, so go to your wifi settings (via pc or smartphone) and connect to `AutoConnectAP`: a web page like below should open automatically, if not open your browser and search for WiFiManager in the top bar
-<img src="readmeImages/WiFiManagerSearch.png"  width="500">
 
+<p align="center">
+<img src="readmeImages/WiFiManagerSearch.png"  width="500">
+</p>
+
+<p align="center">
 <img src="readmeImages/wifiManager.png"  width="500">
+</p>
 
 After connecting to local WiFi with ESP32, you can power the MSP432 as well and replicate the project wiring.
 
@@ -322,4 +350,6 @@ You can ask for the last soil moisture, enviromental brightness and temperature 
 
 Here an example of the telegram interface.
 
+<p align="center">
 <img src="readmeImages/telegramExample.png"  width="500">
+</p>
