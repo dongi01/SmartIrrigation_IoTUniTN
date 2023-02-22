@@ -49,9 +49,28 @@ void readUart2(uint8_t &RXMoisture, uint8_t &RXLight, uint8_t &RXTemp){
 void decodeData(const uint8_t &RXMoisture, const uint8_t &RXLight, const uint8_t &RXTemp, // input
                   int &dataMoisture, int &dataLight, int &dataTemp, int &dataPump){ // output
 
+  /* debug printing
+  Serial.println("START");
+
+  Serial.println(RXMoisture);
+  Serial.println(RXLight);
+  Serial.println(RXTemp);
+  Serial.println("");
+  */
+
   dataMoisture = unSetControlBit(RXMoisture);
   dataLight = sevenBitsToRange(RXLight, 0, 2000);
   dataTemp = getTemperature(RXTemp);
   dataPump = getDataPump(RXTemp);
+
+  /* debug printing
+  Serial.println(dataMoisture);
+  Serial.println(dataLight);
+  Serial.println(dataTemp);
+  Serial.println(dataPump);
+
+  Serial.println("FINISH");
+  Serial.println("");
+  */
   
 }
