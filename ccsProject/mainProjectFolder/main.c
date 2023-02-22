@@ -28,7 +28,7 @@ float temp;
 //Variable for storing light value returned from OPT3001
 unsigned int lux;
 //Variable for storing moisturePercetage taken from adc convertion
-unsigned int moisturePercentage;
+float moisturePercentage;
 
 //Boolean to keep refreshing data in sensors data mode
 bool showMode = false;
@@ -41,6 +41,9 @@ int showLogoMode = 1;
 
 //Variable to store the received uart value
 uint8_t RXData = 0;
+
+//Boolean to prioritize the manual control
+bool manualControl = false;
 
 void _hwInit(){
 
@@ -120,10 +123,12 @@ void PORT5_IRQHandler(){
                 break;
 
             case 1: //start pump
+                manualControl = true;
                 startPump(&dropImage); //Water drop image
                 break;
 
             case 2: //stop pump
+                manualControl = false;
                 stopPump(&barDropImage); //Crossed water drop image
                 break;
 
@@ -148,12 +153,6 @@ void TA1_0_IRQHandler(){
     }
     showLogoMode--;
 
-    if(pumpOn && timePumpOn == 0){
-        stopPump(&barDropImage); //Crossed water drop image
-    }else if(pumpOn){
-        timePumpOn--;
-    }
-
     //Obtain temperature value from TMP006
     temp = TMP006_getTemp();
     //Temp in celsius
@@ -165,9 +164,14 @@ void TA1_0_IRQHandler(){
     //Map moisutre value from ADC
     moisturePercentage = mapToPercentage(curADCResult,MIN_ADC_MOISTURE_VALUE,MAX_ADC_MOISTURE_VALUE);
 
-    if(moisutrePercentage < 20){
-        startPump(&dropImage); //Function call to check if it works in real world
-    }
+    printf("Moisture percentage %f \n",moisturePercentage);
+
+   if(moisturePercentage < 20 && !pumpOn && !manualControl){
+       startPump(&dropImage);
+   }
+   if(moisturePercentage > 80 && pumpOn && !manualControl){
+       stopPump(&barDropImage);
+   }
 
     //If show mode print sensors data
     if(showMode){
@@ -175,7 +179,7 @@ void TA1_0_IRQHandler(){
     }
 
     //Send data to the ESP32
-    mapAndSendData(temp,lux,curADCResult);
+    mapAndSendData(temp,lux,moisturePercentage);
 }
 
 //ADC Interrupt Handler, this handler is called whenever there is a conversion that is finished for ADC_MEM0
@@ -188,7 +192,6 @@ void ADC14_IRQHandler(void){
     if (ADC_INT0 & status){
         //Should be between 0 and 16384
         curADCResult = ADC14_getResult(ADC_MEM0);
-        printf("%d\n",curADCResult);
     }
 
     //joystick conversion
@@ -246,9 +249,11 @@ void EUSCIA2_IRQHandler(void){
         printf("RXData: %d\n",RXData);
 
         if(RXData == 240){
+            manualControl = true;
             redOn();
             startPump(&dropImage);
         }else if(RXData == 10){
+            manualControl = false;
             greenOn();
             stopPump(&barDropImage);
         }else{
