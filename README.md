@@ -270,7 +270,7 @@ Now the configuration of the software is done, later we will have to modify some
 ## Project wiring
 
 <p align="center">
-<img src="readmeImages/electricSchemaIOT.png" width="400">
+<img src="readmeImages/electricSchemaIOT.png" width="550">
 </p>
 
 ## Get started
