@@ -15,15 +15,15 @@
       <ul>
         <li><a href="#basic-requirements">Requirements</a></li>
         <ul>
-            <li><a href="#Hardware">Hardware</a></li>
-            <li><a href="#Software">Software</a></li>
+            <li><a href="#basic-hardware">Hardware</a></li>
+            <li><a href="#basic-software">Software</a></li>
         </ul>
       </ul>
       <ul>
-        <li><a href="#Project-wiring">Project wiring</a></li>
+        <li><a href="#basic-project-wiring">Project wiring</a></li>
       </ul>
       <ul>
-        <li><a href="#Get-started">Get started</a></li>
+        <li><a href="#basic-get-started">Get started</a></li>
       </ul>
     </li>
     <li>
@@ -31,11 +31,11 @@
       <ul>
         <li><a href="#iot-requirements">Requirements</a></li>
         <ul>
-            <li><a href="#hardware">Hardware</a></li>
-            <li><a href="#software">Software</a></li>
+            <li><a href="#iot-hardware">Hardware</a></li>
+            <li><a href="#iot-software">Software</a></li>
         </ul>
-        <li><a href="#project-wiring">Project Wiring</a></li>
-        <li><a href="#get-started">Get Started</a></li>
+        <li><a href="#iot-project-wiring">Project Wiring</a></li>
+        <li><a href="#iot-get-started">Get Started</a></li>
             <ol>
                 <li><a href="#set-nodejs-server-ip-adress-in-esp32-code">Set NodeJS server IP adress in ESP32 code</a></li>
                 <li><a href="#create-env-file">Create .env file</a></li>
@@ -45,6 +45,8 @@
             </ol>
       </ul>
     </li>
+    <li><a href="#authors">Authors</a></li>
+    <li><a href="#links">Links</a></li>
   </ol>
 </details>
 
@@ -70,18 +72,17 @@ Overall, the Telegram bot is a useful feature that adds flexibility and convenie
 ### Project Layout
 
 <div align="center">
-<img src="readmeImages/softwareArchitecture.png">
+<img src="readmeImages/softwareArchitecture.png" width="600">
 </div>
 
 ```
 SmartIrrigation_IoTUniTN
-├── ccsProject  (temporaneo)
-│   ├── dataCompression             # credo tutto da togliere
-│   ├── file to add to workspace    # cambiare nome cartella
-│   └── mainProjectFolder 
+├── ccsProject
+│   ├── mainProjectFolder           # main code for MSP
+│   └── sensorsLibraries            # MSP sensors libraries 
 ├── ESP32code
-│   ├── ESP32code.ino               # ESP32 main
-│   ├── httpClient                  # personal functions
+│   ├── ESP32code.ino               # ESP32 main code
+│   ├── httpClient                  # personal libraries
 │   ├── httpServer                  # |
 |   └── readUARTdata                # └
 ├── node_server
@@ -93,6 +94,7 @@ SmartIrrigation_IoTUniTN
 │   └── usersAPI.js                 # functions to manage users data in DB
 ├── readmeImages
 │   └── images                      # images for readme
+├── ProjectPresentation.pptx
 └── README.md
 ```
 
@@ -102,10 +104,10 @@ The basic idea of the project is based on a offline irrigation system, which can
 
 ## Basic Requirements
 
-### Hardware
+### Basic Hardware
 You will need an MSP432p401r of the Texas Instrument company with its own expansion: the BOOSTXL-EDUMKII. Moreover you will have to use a capacitive soil moisture sensor for the moisture detection, a 5v relay, a 5v pump and some jumper wires.
 
-### Software
+### Basic Software
 In order to flash the program into the Texas Instrument components, you first need to install [Code Composer Studio](https://www.ti.com/tool/download/CCSTUDIO/12.2.0). 
 
 The next step is to create a new CCS project, choosing the right target system (MSP432P401R), and paste all the files in ccsProject/mainProjectFolder and ccsProject/sensorsLibraries folders. You need also to exlude all the .c files, exept for the main.c and the one from the sensorsLibraries, from the build with a right click on them.
@@ -124,13 +126,13 @@ Finally to run the project you will need to add to the linker option and to the 
 <img src="readmeImages/armCompilerOption.png" width="500">
 </p>
 
-## Project wiring
+## Basic Project wiring
 
 <p align="center">
 <img src="readmeImages/electricSchemaBasic.png" width="550"> 
 </p>
 
-## Get started
+## Basic Get started
 If all the software requirements are satisfied, you need to connect all the sensors and the microcontroller as you can see in the electric schema above. Now, you are able to flash the program on the MSP, using the command flash on CCS, and start using the whole offline system. 
 
 <p align="center">
@@ -142,6 +144,7 @@ As you can see in the image above, once the program start running you will see t
 
 In particular, in the second image it is shown a sample of the sensors data page that is constantly refreshing with the brand new data collected by the sensors.
 
+*NOTE: If you start manually the pump from the menu, the pump will run until you stop it from menu or Telegram bot(read below for IoT extension)*
 
 
 # IoT integration
@@ -152,11 +155,11 @@ This bot can respond to different Telegram accounts and the people that start it
 
 ## IoT Requirements
 
-### Hardware
+### IoT Hardware
 
 You will only need an ESP32 (ESP-WROOM-32) and some other jumpers wire.
 
-### Software
+### IoT Software
 
 1. NodeJS 
 2. npm
@@ -267,13 +270,13 @@ At the end you should have something like this in your Database.
 
 Now the configuration of the software is done, later we will have to modify some code!
 
-## Project wiring
+## IoT Project wiring
 
 <p align="center">
 <img src="readmeImages/electricSchemaIOT.png" width="550">
 </p>
 
-## Get started
+## IoT Get started
 
 Now we have to modify some code to make it work for you.
 
@@ -354,6 +357,8 @@ At this point the project should be perfectly running!
 If you want to be able to use your Telegram bot just open your app and search for the bot that you have created, start it and enjoy!
 You can ask for the last soil moisture, enviromental brightness and temperature registered in the database, you can see data in real time activating realtimie mode (it will send you data every 10 seconds), you can ask for the last N data saved on the database and finally you can manually start and stop the pump!
 
+*NOTE: If you start manually the pump from the bot, the pump will run until you stop it from MSP432 menu or Telegram bot*
+
 Here an example of the telegram interface.
 
 <p align="center">
@@ -365,7 +370,7 @@ Here an example of the telegram interface.
 * [Lorenzo Dongili](https://github.com/dongi01)
   * Telegram bot
   * NodeJS server
-  * ESP32 wifi connection 
+  * ESP32 code 
 * [Stefano Sacchet](https://github.com/StefanoSacchet)
   * UART communication
   * Light and temperature sensors
