@@ -1,6 +1,18 @@
 /* UART Configuration:
  * http://software-dl.ti.com/msp430/msp430_public_sw/mcu/msp430/MSP430BaudRateConverter/index.html
 */
+/*
+ *               MSP432P401
+ *             -----------------
+ *            |                 |
+ *       RST -|     P3.3/UCA0TXD|----|
+ *            |                 |    |
+ *           -|                 |    |
+ *            |     P3.2/UCA0RXD|----|
+ *            |                 |
+ *            |             P1.0|---> LED
+ *            |                 |
+ */
 
 #define TIMER_PERIOD 0x8000 // = 32768
 
@@ -22,7 +34,7 @@ const eUSCI_UART_ConfigV1 uartConfig = //115200 baud rate
 const Timer_A_UpModeConfig upConfig =
 {
         TIMER_A_CLOCKSOURCE_ACLK,              //SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_2,         //32 KHz / 10 = 3.2 KHz / 32 000 = 0.1 Hz = 10 seconds | 32 KHz / 2 = 16 KHz / 32 000 = 0.5 Hz = 2 seconds
+        TIMER_A_CLOCKSOURCE_DIVIDER_5,         //32 KHz / 10 = 3.2 KHz / 32 000 = 0.1 Hz = 10 seconds | 32 KHz / 2 = 16 KHz / 32 000 = 0.5 Hz = 2 seconds
         TIMER_PERIOD,                          //Number of ticks
         TIMER_A_TAIE_INTERRUPT_DISABLE,        //Disable Timer interrupt
         TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,    //Enable CCR0 interrupt
@@ -53,20 +65,23 @@ uint_fast8_t rangeTo7bits(int value, int minI, int maxI) {  //I for initial, F f
     if(value > maxI){
         return 127;
     }
-
     returnValue = 0.0 + (127.0 / (maxI - minI)) * (value - minI);
-    returnValue = 100 - returnValue;
     
     return returnValue;
 }
 
 //Map the input in percentage
-uint_fast8_t mapToPercentage(int value, int minI, int maxI){
-    if(value < minI)
-        return 0;
-    return (value - minI) * 100 / (maxI - minI);
+uint_fast8_t mapToPercentage(float value, float minI, float maxI){
 
-    //return 0.0 + (100.0 / (maxI - minI)) * (value - minI);
+    if(value < minI)
+        return 100;
+    else if (value > maxI)
+        return 0;
+    else{
+        float percentage = (value - minI)/(maxI-minI);
+        printf("Percentage %f\n",percentage);
+        return 100 - percentage*100.0;
+    }
 }
 
 //Set the control bit at 1 of the first byte
@@ -78,11 +93,12 @@ uint_fast8_t setControlBit(uint8_t firstData){
 void mapAndSendData(float temp, int lux, float moistureAdcValue){
 
     //Mapping on 7 bits
-    uint_fast8_t TXMoisture = mapToPercentage(moistureAdcValue, 5000 , 14200); //16384 max value of ADC-> 16000 water value
+    uint_fast8_t TXMoisture = moistureAdcValue;
     uint_fast8_t TXLight = rangeTo7bits(lux, 0, 2000);
-    uint_fast8_t TXTemp = rangeTo7bits(temp, 0, 63);
+    uint_fast8_t TXTemp = temp;
 
-    if (temp > 63) temp = 63; //max value of temperature
+    if (TXTemp > 63)
+        TXTemp = 63;
 
     //Set second bit of temperature byte to 1 if pump is on
     if(pumpOn) TXTemp+=64;

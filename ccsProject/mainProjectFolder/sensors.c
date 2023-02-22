@@ -1,10 +1,10 @@
-#define MAX_ADC_MOISTURE_VALUE 16000
-#define MIN_ADC_MOISTURE_VALUE 14200
+float MAX_ADC_MOISTURE_VALUE = 14200.0;
+float MIN_ADC_MOISTURE_VALUE = 5000.0;
 
 void adcInit(){
 
     /* Configuring GPIOs (5.5 A0) */
-    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);
+    //GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);
 
     /* Configures Pin 6.0 and 4.4 as ADC input */
     GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P6, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);
