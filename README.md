@@ -273,7 +273,7 @@ Now the configuration of the software is done, later we will have to modify some
 ## IoT Project wiring
 
 <p align="center">
-<img src="readmeImages/electricSchemaIOT.png" width="550">
+<img src="readmeImages/electricalSchemaIOT.png" width="550">
 </p>
 
 ## IoT Get started
