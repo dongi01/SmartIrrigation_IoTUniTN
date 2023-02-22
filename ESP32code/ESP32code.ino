@@ -10,7 +10,7 @@
 // max value for unsigned long
 #define ULONG_MAX 18446744073709551615
 
-// defining serial comunication and led pins
+// defining serial comunication pins
 #define RXD2 16
 #define TXD2 17
 
@@ -28,7 +28,7 @@ int oldDataPump = dataPump;
 // --- SETUP ---
 void setup() {
   
-  // serial for debug and ad comunication
+  // serial for debug and comunication
   Serial.begin(115200);
   Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
 

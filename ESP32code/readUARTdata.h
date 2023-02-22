@@ -5,7 +5,7 @@
 
 /*RX data schema
   
-  They are all uint8_t and data has been divived as follow:
+  Data has been divived as follow:
   - c is the control bit -> used to know the first byte of the expected 3. RXMoisture::c = 1
   - w are the bits that bring moisture data
   - x are the bits that bring light data
@@ -20,6 +20,10 @@
   
   RXTemp      c y z z  z z z z
   
+*/
+
+/*
+These funcions are used to read on serial port and decode data
 */
 
 void readUart2(uint8_t &RXMoisture, uint8_t &RXLight, uint8_t &RXTemp);
