@@ -89,6 +89,13 @@ uint_fast8_t setControlBit(uint8_t firstData){
     return 128 + firstData;
 }
 
+//Set pump bit
+uint_fast8_t setPumpBit(uint8_t firstData){
+    if(pumpOn)
+        return 64 + firstData;
+    return firstData
+}
+
 //Map and send data to the ESP32
 void mapAndSendData(float temp, int lux, float moistureAdcValue){
 
@@ -101,7 +108,7 @@ void mapAndSendData(float temp, int lux, float moistureAdcValue){
         TXTemp = 63;
 
     //Set second bit of temperature byte to 1 if pump is on
-    if(pumpOn) TXTemp+=64;
+    TXTemp = setPumpBit(TXTemp);
     //Setting control bit at 1 of first byte
     TXMoisture = setControlBit(TXMoisture);
 

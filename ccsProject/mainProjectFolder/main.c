@@ -42,6 +42,9 @@ int showLogoMode = 1;
 //Variable to store the received uart value
 uint8_t RXData = 0;
 
+//Boolean to prioritize the manual control
+bool manualControl = false;
+
 void _hwInit(){
 
     //Halting WDT and disabling master interrupts
@@ -120,10 +123,12 @@ void PORT5_IRQHandler(){
                 break;
 
             case 1: //start pump
+                manualControl = true;
                 startPump(&dropImage); //Water drop image
                 break;
 
             case 2: //stop pump
+                manualControl = false;
                 stopPump(&barDropImage); //Crossed water drop image
                 break;
 
@@ -161,12 +166,12 @@ void TA1_0_IRQHandler(){
 
     printf("Moisture percentage %f \n",moisturePercentage);
 
-//    if(moisturePercentage < 20 && !pumpOn){
-//        startPump(&dropImage);
-//    }
-//    if(moisturePercentage > 80 && pumpOn){
-//        stopPump(&barDropImage);
-//    }
+   if(moisturePercentage < 20 && !pumpOn && !manualControl){
+       startPump(&dropImage);
+   }
+   if(moisturePercentage > 80 && pumpOn && !manualControl){
+       stopPump(&barDropImage);
+   }
 
     //If show mode print sensors data
     if(showMode){
@@ -244,9 +249,11 @@ void EUSCIA2_IRQHandler(void){
         printf("RXData: %d\n",RXData);
 
         if(RXData == 240){
+            manualControl = true;
             redOn();
             startPump(&dropImage);
         }else if(RXData == 10){
+            manualControl = false;
             greenOn();
             stopPump(&barDropImage);
         }else{
