@@ -68,6 +68,11 @@ Otherwise the user can control the system remotely with our Telegram bot. It is 
 Overall, the Telegram bot is a useful feature that adds flexibility and convenience to the Smart Automatic Irrigation System.
 
 ### Project Layout
+
+<div align="center">
+<img src="readmeImages/softwareArchitecture.png">
+</div>
+
 ```
 SmartIrrigation_IoTUniTN
 ├── ccsProject  (temporaneo)
@@ -93,7 +98,7 @@ SmartIrrigation_IoTUniTN
 
 # Basic
 
-The basic idea of the project is based on a offline irrigation system, which can be controlled directly by the MSP432. Using the lcd screen, it has different features to be execute by choosing with its own integrated controller and buttons.
+The basic idea of the project is based on a offline irrigation system, which can be controlled directly by the MSP432. Using the LCD screen, it has different features to be execute by choosing with its own integrated controller and buttons.
 
 ## Basic Requirements
 
@@ -122,7 +127,7 @@ Finally to run the project you will need to add to the linker option and to the 
 ## Project wiring
 
 <p align="center">
-<img src="readmeImages/electricSchemaBasic.png" width="400"> 
+<img src="readmeImages/electricSchemaBasic.png" width="550"> 
 </p>
 
 ## Get started
@@ -354,3 +359,23 @@ Here an example of the telegram interface.
 <p align="center">
 <img src="readmeImages/telegramExample.png"  width="500">
 </p>
+
+## Authors
+
+* [Lorenzo Dongili](https://github.com/dongi01)
+  * Telegram bot
+  * NodeJS server
+  * ESP32 wifi connection 
+* [Stefano Sacchet](https://github.com/StefanoSacchet)
+  * UART communication
+  * Light and temperature sensors
+  * Electrical wiring
+* [Matteo Mascherin](https://github.com/MatteoMaske)
+  * Aplication interface
+  * Soil moisture sensor mapping
+  * Code testing
+
+## Links
+
+* [Demo video]()
+* [Project presentation]()
