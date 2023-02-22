@@ -57,11 +57,11 @@ Welcome to the Smart Irrigation System!
 This system is designed to help you water your plants efficiently and effectively. It uses a combination of sensors, microcontrollers, and a water pump to automatically water your plants, or even control it remotely.
 
 The system includes the following components:
-  - <strong>MSP432</strong>: This device reads the data from the sensors, determines whether the plants need to be watered and is connected to internet by an ESP32.
-  - <strong> ESP32</strong>: This microcontroller is uesd to connect the system to internet in order to use a Telegram bot that lets overview the framework.
-  - <strong>Soil moisture sensor</strong>: This sensor measures the moisture level in the soil and sends data to the msp microcontroller.
-  - <strong>Temperature and light sensor </strong>: This sensor measures the temperature and light of the surrounding environment and sends data to the msp microcontroller.
-  - <strong>Water pump </strong>: This pump is connected to a water source and is used to water the plants when necessary.
+  - **MSP432**: This device reads the data from the sensors, determines whether the plants need to be watered and is connected to internet by an ESP32.
+  - **ESP32**: This microcontroller is uesd to connect the system to internet in order to use a Telegram bot that lets overview the framework.
+  - **Soil moisture sensor**: This sensor measures the moisture level in the soil and sends data to the msp microcontroller.
+  - **Temperature and light sensor**: This sensor measures the temperature and light of the surrounding environment and sends data to the msp microcontroller.
+  - **Water pump**: This pump is connected to a water source and is used to water the plants when necessary.
 
 The system works by continuously monitoring the soil moisture level and environmental conditions. If the moisture level is too low and the temperature and humidity are within acceptable ranges, the microcontroller will activate the water pump to water the plants.
 
@@ -105,12 +105,12 @@ The basic idea of the project is based on a offline irrigation system, which can
 ## Basic Requirements
 
 ### Basic Hardware
-You will need an MSP432p401r of the Texas Instrument company with its own expansion: the BOOSTXL-EDUMKII. Moreover you will have to use a capacitive soil moisture sensor for the moisture detection, a 5v relay, a 5v pump and some jumper wires.
+You will need an `MSP432p401r` of the Texas Instrument company with its own expansion: the `BOOSTXL-EDUMKII`. Moreover you will have to use a capacitive soil moisture sensor for the moisture detection, a 5v relay, a 5v pump and some jumper wires.
 
 ### Basic Software
 In order to flash the program into the Texas Instrument components, you first need to install [Code Composer Studio](https://www.ti.com/tool/download/CCSTUDIO/12.2.0). 
 
-The next step is to create a new CCS project, choosing the right target system (MSP432P401R), and paste all the files in ccsProject/mainProjectFolder and ccsProject/sensorsLibraries folders. You need also to exlude all the .c files, exept for the main.c and the one from the sensorsLibraries, from the build with a right click on them.
+The next step is to create a new CCS project, choosing the right target system (MSP432P401R), and paste all the files in `ccsProject/mainProjectFolder` and `ccsProject/sensorsLibraries` folders. You need also to exlude all the .c files, exept for the `main.c` and the one from the sensorsLibraries, from the build with a right click on them.
 
 Finally to run the project you will need to add to the linker option and to the compiler option the driverlib library downloading it at this [link](https://drive.google.com/file/d/1krZfBNAFiE6yAChQfHZVE-b0wfuDitgV/view?usp=sharing). 
 
