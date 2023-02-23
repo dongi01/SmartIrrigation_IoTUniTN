@@ -33,7 +33,7 @@ const eUSCI_UART_ConfigV1 uartConfig = //115200 baud rate
 //Timer_A UpMode Configuration Parameter
 const Timer_A_UpModeConfig upConfig =
 {
-        TIMER_A_CLOCKSOURCE_ACLK,              //SMCLK Clock Source
+        TIMER_A_CLOCKSOURCE_ACLK,              //ACLK Clock Source
         TIMER_A_CLOCKSOURCE_DIVIDER_5,         //32 KHz / 5 = 6.4 KHz / 32 000 = 0.2 Hz = 5 seconds
         TIMER_PERIOD,                          //Number of ticks
         TIMER_A_TAIE_INTERRUPT_DISABLE,        //Disable Timer interrupt
@@ -93,7 +93,7 @@ uint_fast8_t setControlBit(uint8_t firstData){
 uint_fast8_t setPumpBit(uint8_t firstData){
     if(pumpOn)
         return 64 + firstData;
-    return firstData
+    return firstData;
 }
 
 //Map and send data to the ESP32

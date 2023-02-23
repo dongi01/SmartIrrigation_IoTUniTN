@@ -217,7 +217,6 @@ void ADC14_IRQHandler(void){
             if(!inSubMenu){
                 refreshMenu();
                 int i = 0;
-                for(i=0; i<300000; i++); //Delay for controller usability
             }
         }
 
@@ -236,7 +235,6 @@ void ADC14_IRQHandler(void){
             if(!inSubMenu){
                 refreshMenu();
                 int i = 0;
-                for(i=0; i<300000; i++); //Delay for controller usability
             }
         }
         
