@@ -3,9 +3,6 @@
 //Boolean variable that indicates if the pump is working
 bool pumpOn = false;
 
-
-void stopPump(const Graphics_Image* image);
-
 //Animate the display and then start the pump
 void startPump(const Graphics_Image* image){
 

@@ -34,7 +34,7 @@ const eUSCI_UART_ConfigV1 uartConfig = //115200 baud rate
 const Timer_A_UpModeConfig upConfig =
 {
         TIMER_A_CLOCKSOURCE_ACLK,              //SMCLK Clock Source
-        TIMER_A_CLOCKSOURCE_DIVIDER_5,         //32 KHz / 10 = 3.2 KHz / 32 000 = 0.1 Hz = 10 seconds | 32 KHz / 2 = 16 KHz / 32 000 = 0.5 Hz = 2 seconds
+        TIMER_A_CLOCKSOURCE_DIVIDER_5,         //32 KHz / 5 = 6.4 KHz / 32 000 = 0.2 Hz = 5 seconds
         TIMER_PERIOD,                          //Number of ticks
         TIMER_A_TAIE_INTERRUPT_DISABLE,        //Disable Timer interrupt
         TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,    //Enable CCR0 interrupt
@@ -58,7 +58,7 @@ void configureTimer(){
 }
 
 //Map the input value in a 7 bit range (sender side)
-uint_fast8_t rangeTo7bits(int value, int minI, int maxI) {  //I for initial, F for final
+uint_fast8_t rangeTo7bits(int value, int minI, int maxI) {
 
     uint8_t returnValue;
 
@@ -112,14 +112,14 @@ void mapAndSendData(float temp, int lux, float moistureAdcValue){
     //Setting control bit at 1 of first byte
     TXMoisture = setControlBit(TXMoisture);
 
-    printf("Moisture: %f ",moistureAdcValue);
-    printf("Light: %d ",lux);
-    printf("Temp: %f ",temp);
-    printf("***\n");
-    printf("TXMoisture: %d\n",TXMoisture-128);
-    printf("TXLight: %d\n",TXLight);
-    printf("TXTemp: %d\n",TXTemp);
-    printf("***\n");
+    // printf("Moisture: %f ",moistureAdcValue);
+    // printf("Light: %d ",lux);
+    // printf("Temp: %f ",temp);
+    // printf("***\n");
+    // printf("TXMoisture: %d\n",TXMoisture-128);
+    // printf("TXLight: %d\n",TXLight);
+    // printf("TXTemp: %d\n",TXTemp);
+    // printf("***\n");
     
     //Transmit all data
     UART_transmitData(EUSCI_A2_BASE, TXMoisture);

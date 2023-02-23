@@ -45,6 +45,9 @@ uint8_t RXData = 0;
 //Boolean to prioritize the manual control
 bool manualControl = false;
 
+//boolean to check if the controller was triggered once
+bool triggered = false;
+
 void _hwInit(){
 
     //Halting WDT and disabling master interrupts
@@ -144,14 +147,14 @@ void TA1_0_IRQHandler(){
     //Clear interrupt flag
     Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
 
-    //Show the app logo for 2 timer interrupts
+    //Show the app logo for N timer interrupts
     if(showLogoMode > 0){
         showAppLogo();
+        showLogoMode--;
     }else if(showLogoMode == 0){
         Graphics_clearDisplay(&g_sContext);
         refreshMenu();
     }
-    showLogoMode--;
 
     //Obtain temperature value from TMP006
     temp = TMP006_getTemp();
@@ -164,14 +167,14 @@ void TA1_0_IRQHandler(){
     //Map moisutre value from ADC
     moisturePercentage = mapToPercentage(curADCResult,MIN_ADC_MOISTURE_VALUE,MAX_ADC_MOISTURE_VALUE);
 
-    printf("Moisture percentage %f \n",moisturePercentage);
+    //printf("Moisture percentage %f \n",moisturePercentage);
 
-   if(moisturePercentage < 20 && !pumpOn && !manualControl){
-       startPump(&dropImage);
-   }
-   if(moisturePercentage > 80 && pumpOn && !manualControl){
-       stopPump(&barDropImage);
-   }
+    if(moisturePercentage < 20 && !pumpOn && !manualControl){
+        startPump(&dropImage);
+    }
+    if(moisturePercentage > 80 && pumpOn && !manualControl){
+        stopPump(&barDropImage);
+    }
 
     //If show mode print sensors data
     if(showMode){
@@ -195,12 +198,14 @@ void ADC14_IRQHandler(void){
     }
 
     //joystick conversion
-    if(status & ADC_INT1){
+    if(ADC_INT1 & status){
 
         int yVal = ADC14_getResult(ADC_MEM1);
 
         //Joystick down
-        if (yVal < lowLimitController){
+        if (yVal < lowLimitController && !tilted){
+
+            tilted = true;
 
             //Update selected menu option
             if(currentOpt == NUM_OPT-1){
@@ -217,7 +222,9 @@ void ADC14_IRQHandler(void){
         }
 
         //Joystick up
-        if(yVal > upLimitController){
+        if(yVal > upLimitController && !tilted){
+ 
+            tilted = true;
 
             //Update selected menu option
             if(currentOpt == 0){
@@ -231,6 +238,11 @@ void ADC14_IRQHandler(void){
                 int i = 0;
                 for(i=0; i<300000; i++); //Delay for controller usability
             }
+        }
+        
+        //Joystick center to set back tilted to false
+        if(yVal > 7000 && yVal < 9000){
+            tilted = false;
         }
     }
 
